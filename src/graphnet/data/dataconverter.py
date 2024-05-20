@@ -1,5 +1,4 @@
 """Contains `DataConverter`."""
-
 from typing import List, Union, OrderedDict, Dict, Tuple, Any, Optional, Type
 from abc import ABC
 
