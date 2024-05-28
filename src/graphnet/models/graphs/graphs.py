@@ -22,6 +22,7 @@ class KNNGraph(GraphDefinition):
         seed: Optional[Union[int, Generator]] = None,
         nb_nearest_neighbours: int = 8,
         columns: List[int] = [0, 1, 2],
+        **kwargs
     ) -> None:
         """Construct k-nn graph representation.
 
@@ -52,6 +53,7 @@ class KNNGraph(GraphDefinition):
             input_feature_names=input_feature_names,
             perturbation_dict=perturbation_dict,
             seed=seed,
+            **kwargs
         )
 
 
@@ -69,6 +71,7 @@ class EdgelessGraph(GraphDefinition):
         dtype: Optional[torch.dtype] = torch.float,
         perturbation_dict: Optional[Dict[str, float]] = None,
         seed: Optional[Union[int, Generator]] = None,
+        **kwargs
     ) -> None:
         """Construct isolated nodes graph representation.
 
@@ -93,6 +96,7 @@ class EdgelessGraph(GraphDefinition):
             input_feature_names=input_feature_names,
             perturbation_dict=perturbation_dict,
             seed=seed,
+            **kwargs
         )
 
 class HitsSequence(GraphDefinition):
