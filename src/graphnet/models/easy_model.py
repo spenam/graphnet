@@ -291,7 +291,7 @@ class EasySyntax(Model):
         dataloader: DataLoader,
         gpus: Optional[Union[List[int], int]] = None,
         distribution_strategy: Optional[str] = "auto",
-        **trainer_kwargs,
+        **trainer_kwargs: Any,
     ) -> List[Tensor]:
         """Return predictions for `dataloader`."""
         self.inference()
@@ -326,7 +326,7 @@ class EasySyntax(Model):
         additional_attributes: Optional[List[str]] = None,
         gpus: Optional[Union[List[int], int]] = None,
         distribution_strategy: Optional[str] = "auto",
-        **trainer_kwargs,
+        **trainer_kwargs: Any,
     ) -> pd.DataFrame:
         """Return predictions for `dataloader` as a DataFrame.
 
