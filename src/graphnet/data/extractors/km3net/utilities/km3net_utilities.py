@@ -198,6 +198,7 @@ def xyz_dir_to_zen_az(
 def classifier_column_creator(
     pdgid: np.ndarray,
     is_cc_flag: List[int],
+    tau_topology: List[int],
 ) -> Tuple[List[int], List[int]]:
     """Create helpful columns for the classifier."""
     is_muon = np.zeros(len(pdgid), dtype=int)

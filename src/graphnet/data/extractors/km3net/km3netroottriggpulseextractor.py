@@ -8,7 +8,7 @@ import awkward as ak
 from graphnet.data.extractors import Extractor
 from .km3netrootextractor import KM3NeTROOTExtractor
 from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
-    create_unique_id,
+    create_unique_id_filetype,
     assert_no_uint_values,
     creating_time_zero,
 )
