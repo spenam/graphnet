@@ -134,3 +134,4 @@ class HitsSequence(GraphDefinition):
             perturbation_dict=perturbation_dict,
             seed=seed,
         )
+
