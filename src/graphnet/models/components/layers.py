@@ -594,3 +594,43 @@ class Block(LightningModule):
             )
             x = x + self.drop_path(self.gamma_2 * self.mlp(self.norm2(x)))
         return x
+
+class Encoder_block(nn.Module):
+    """ Encoder block for Transformer model. """                                                
+    def __init__( 
+        self,
+        dim: int = 128, 
+        num_heads: int = 8,
+        dropout_attn: float = 0.2,
+        hidden_dim: int = 256,
+        dropout_FFNN: float = 0.2,
+    ):
+        """ 
+            Input data goes through encoder block with MHA and a FFNN with GELU activation function.
+
+            Args:
+                dim: Dimension of the model.
+                num_heads: Number of heads in MHA.
+                dropout_attn: Dropout to be applied in MHA.
+                hidden_dim: Dimension of FFNN.
+                dropout_FFNN: Dropout to be applied in MHA.
+        """
+        super().__init__()
+        self.ln_1 = nn.LayerNorm(dim)
+        self.self_attention = nn.MultiheadAttention(dim, num_heads, dropout = dropout_attn, batch_first = True)
+        self.ln_2 = nn.LayerNorm(dim)
+        self.FFNN = nn.Sequential(
+            nn.Linear(dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout_FFNN),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(dropout_FFNN)
+        )
+    
+    def forward(self, x, mask, attn_mask = None):
+        z = self.ln_1(x)
+        x = x + self.self_attention(z, z, z, key_padding_mask = mask, attn_mask = attn_mask)[0]             
+        y = self.ln_2(x)
+        x = x + self.FFNN(y)
+        
+        return x

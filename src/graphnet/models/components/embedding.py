@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch.functional import Tensor
 
-from typing import Optional
+from typing import Optional, Union
 
 from pytorch_lightning import LightningModule
 
@@ -174,3 +174,40 @@ class SpacetimeEncoder(LightningModule):
         sin_emb = self.sin_emb(1024 * four_distance.clip(-4, 4))
         rel_attn = self.projection(sin_emb)
         return rel_attn
+
+class FeaturesProcessing(nn.Module):
+    """ Process the hits features by passing them through a embedding block. """
+    
+    def __init__(
+                    self, 
+                    n_features: int = 6,
+                    emb_dims: Union[list, int],
+    ):
+        """ Pass all the features through a embedding block before feed them to the model.
+
+            Args:
+                n_features: The number of features in the input data.
+                emb_dims: Dimensionality of the consecutive linear layers.
+        """
+        
+        super().__init__()
+
+        if instance(emb_dims, int):
+            emb_dims = [emb_dims]
+
+        self.model_dim = emb_dims[-1]
+
+        module_list = []
+        for emb_dim in emb_dims:
+            module_list.extend([
+                                    nn.LayerNorm(n_features),
+                                    nn.Linear(n_features, emb_dim)),
+                                    nn.GELU()
+            ])
+            n_features = emb_dim
+
+        self.emb = nn.Sequential(*module_list)
+
+
+    def forward(self, x):
+        return self.emb(x) * math.sqrt(self.model_dim) 
