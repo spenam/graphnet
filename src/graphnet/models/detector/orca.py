@@ -5,11 +5,14 @@ import torch
 import os
 
 from graphnet.models.detector.detector import Detector
-
+from graphnet.constants import ICECUBE_GEOMETRY_TABLE_DIR
 
 class ORCA115(Detector):
     """`Detector` class for ORCA-115."""
 
+    geometry_table_path = os.path.join(
+        ICECUBE_GEOMETRY_TABLE_DIR, "icecube86.parquet"
+    )
     xyz = ["pos_x", "pos_y", "pos_z"]
     string_id_column = "string_id"
     sensor_id_column = "sensor_id"
@@ -17,14 +20,14 @@ class ORCA115(Detector):
     def feature_map(self) -> Dict[str, Callable]:
         """Map standardization functions to each dimension of input data."""
         feature_map = {
-            "t": self._dom_time,
-            "pos_x": self._dom_xy,
-            "pos_y": self._dom_xy,
-            "pos_z": self._dom_z,
-            "dir_x": self._dir_xy,
-            "dir_y": self._dir_xy,
-            "dir_z": self._dir_z,
-            "tot": self._tot,
+            "t": self._identity, #self._dom_time,
+            "pos_x": self._identity, #self._dom_xy,
+            "pos_y": self._identity, #self._dom_xy,
+            "pos_z": self._identity, #self._dom_z,
+            "dir_x": self._identity, #self._dir_xy,
+            "dir_y": self._identity, #self._dir_xy,
+            "dir_z": self._identity, #self._dir_z,
+            "tot": self._identity, #self._tot,
         }
         return feature_map
 
@@ -51,6 +54,9 @@ class ORCA115(Detector):
 class ORCA6(Detector):
     """`Detector` class for ORCA-6."""
 
+    geometry_table_path = os.path.join(
+        ICECUBE_GEOMETRY_TABLE_DIR, "icecube86.parquet"
+    )
     xyz = ["pos_x", "pos_y", "pos_z"]
     string_id_column = "string_id"
     sensor_id_column = "sensor_id"
