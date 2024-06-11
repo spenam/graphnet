@@ -181,8 +181,8 @@ class FeaturesProcessing(nn.Module):
 
     def __init__(
                     self,
-                    n_features: int = 6,
                     emb_dims: Union[List, int],
+                    n_features: int = 6,
     ):
         """ Pass all the features through a embedding block before feed them to the model.
 
