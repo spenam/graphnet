@@ -210,7 +210,7 @@ class FeaturesProcessing(nn.Module):
 
 
     def forward(self, x):
-        return self.emb(x) * math.sqrt(self.model_dim)
+        return self.emb(x) * math.sqrt(self.model_dim) 
 
 class PositionalEncoding(nn.Module):
     """ Sinusodial Position Embedding for continuous variables."""
