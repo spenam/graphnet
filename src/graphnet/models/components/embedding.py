@@ -2,8 +2,9 @@
 import torch
 import torch.nn as nn
 from torch.functional import Tensor
+import math
 
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from pytorch_lightning import LightningModule
 
@@ -177,11 +178,11 @@ class SpacetimeEncoder(LightningModule):
 
 class FeaturesProcessing(nn.Module):
     """ Process the hits features by passing them through a embedding block. """
-    
+
     def __init__(
-                    self, 
+                    self,
                     n_features: int = 6,
-                    emb_dims: Union[list, int],
+                    emb_dims: Union[List, int],
     ):
         """ Pass all the features through a embedding block before feed them to the model.
 
@@ -189,7 +190,7 @@ class FeaturesProcessing(nn.Module):
                 n_features: The number of features in the input data.
                 emb_dims: Dimensionality of the consecutive linear layers.
         """
-        
+
         super().__init__()
 
         if instance(emb_dims, int):
@@ -201,7 +202,7 @@ class FeaturesProcessing(nn.Module):
         for emb_dim in emb_dims:
             module_list.extend([
                                     nn.LayerNorm(n_features),
-                                    nn.Linear(n_features, emb_dim)),
+                                    nn.Linear(n_features, emb_dim),
                                     nn.GELU()
             ])
             n_features = emb_dim
@@ -210,4 +211,39 @@ class FeaturesProcessing(nn.Module):
 
 
     def forward(self, x):
-        return self.emb(x) * math.sqrt(self.model_dim) 
+        return self.emb(x) * math.sqrt(self.model_dim)
+
+class PositionalEncoding(nn.Module):
+    """ Sinusodial Position Embedding for continuous variables."""
+
+    def __init__(
+                    self,
+                    dim: int = 128,
+                    seq_length: int = 300,
+    ):
+        """ Associate an unique representation to each position in a sequence using Sinusoidal Fourier position encoding.
+
+        Args:
+            dim: Dimension of the model
+            seq_length: Maximun length of the sequence.
+
+    """
+
+        super().__init__()
+
+        pos_emb = torch.zeros(seq_length, dim)
+        positions = torch.arange(0, seq_length, dtype = torch.float).unsqueeze(1)
+
+        div_term = torch.exp(torch.arange(0, dim, 2).float() * -math.log(10000.0) / dim  )
+
+        pos_emb[:, 0::2] = torch.sin(positions * div_term)
+        pos_emb[:, 1::2] = torch.cos(positions * div_term)
+
+        pos_emb = pos_emb.unsqueeze(0) #pos_emb.hape: [1, seq, dim]
+
+        self.register_buffer('pos_emb', pos_emb)
+
+    def forward(self, x):
+        # x.shape = [B, seq_len, dim]
+        x = x + self.pos_emb[:, :x.shape[1], :]
+        return x
