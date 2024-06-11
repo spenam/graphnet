@@ -3,7 +3,9 @@ import torch
 import torch.nn as nn
 from torch.functional import Tensor
 import math
+import math
 
+from typing import Optional, Union, List
 from typing import Optional, Union, List
 
 from pytorch_lightning import LightningModule
@@ -178,10 +180,11 @@ class SpacetimeEncoder(LightningModule):
 class FeaturesProcessing(nn.Module):
     """ Process the hits features by passing them through a embedding block. """
 
+
     def __init__(
                     self,
-                    emb_dims: Union[List, int],
                     n_features: int = 6,
+                    emb_dims: Union[List, int],
     ):
         """ Pass all the features through a embedding block before feed them to the model.
 
@@ -189,6 +192,7 @@ class FeaturesProcessing(nn.Module):
                 n_features: The number of features in the input data.
                 emb_dims: Dimensionality of the consecutive linear layers.
         """
+
 
         super().__init__()
 
@@ -202,6 +206,7 @@ class FeaturesProcessing(nn.Module):
             module_list.extend([
                                     nn.LayerNorm(n_features),
                                     nn.Linear(n_features, emb_dim),
+                                    nn.Linear(n_features, emb_dim),
                                     nn.GELU()
             ])
             n_features = emb_dim
@@ -210,7 +215,7 @@ class FeaturesProcessing(nn.Module):
 
 
     def forward(self, x):
-        return self.emb(x) * math.sqrt(self.model_dim) 
+        return self.emb(x) * math.sqrt(self.model_dim)
 
 class PositionalEncoding(nn.Module):
     """ Sinusodial Position Embedding for continuous variables."""
