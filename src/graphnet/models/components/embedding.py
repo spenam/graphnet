@@ -193,7 +193,7 @@ class FeaturesProcessing(nn.Module):
 
         super().__init__()
 
-        if instance(emb_dims, int):
+        if isinstance(emb_dims, int):
             emb_dims = [emb_dims]
 
         self.model_dim = emb_dims[-1]
