@@ -411,16 +411,21 @@ class GraphDefinition(Model):
         for truth_dict in truth_dicts:
             for key, value in truth_dict.items():
                 try:
+                    if isinstance(value, np.ndarray):
+                        if value.dtype == np.dtype("object"):
+                            print(key, value)
+                            value = value.astype(int)
                     graph[key] = torch.tensor(value)
-                except TypeError:
+                except TypeError as e:
                     # Cannot convert `value` to Tensor due to its data type,
                     # e.g. `str`.
-                    self.debug(
+                    self.info(
                         (
                             f"Could not assign `{key}` with type "
                             f"'{type(value).__name__}' as attribute to graph."
                         )
                     )
+                    raise e
         return graph
 
     def _add_features_individually(
