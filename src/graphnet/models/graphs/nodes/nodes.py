@@ -553,12 +553,14 @@ class NodesAsHitsTimeSeries(NodeDefinition):
         for idx, feature in enumerate(self.all_features):
             graph[:event_length, idx] = x[ids, self.feature_indexes[feature]]
 
-            if feature == 't':
-                tmin = torch.min(x[:, self.feature_indexes[feature]])
-                graph[:, idx] -= tmin
+            if 't' in self.all_features:
+                if feature == 't':
+                    tmin = torch.min(x[:, self.feature_indexes[feature]])
+                    graph[:, idx] -= tmin
             else:
-                self.warning(
-                    f"Time was not used as a node feature."
-                )
+                pass
+                #self.warning(
+                #    f"Time was not used as a node feature."
+                #)
 
         return Data(x=graph)
