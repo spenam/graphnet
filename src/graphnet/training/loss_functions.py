@@ -18,6 +18,7 @@ from torch.nn.functional import (
     binary_cross_entropy,
     softplus,
     gaussian_nll_loss,
+    gaussian_nll_loss,
 )
 
 from graphnet.models.model import Model
@@ -544,13 +545,11 @@ class GaussianNegativeLogLikelihood1D(LossFunction):
         self,
         full: bool = True,
         eps: float = 1e-7,
-        log10: bool = True,
         *args: Any,
         **kwargs: Any,
     ) -> None:
         self.full = full
         self.eps = eps
-        self.log10 = log10
         super().__init__(*args, **kwargs)
     
     def _forward(self, prediction: Tensor, target: Tensor) -> Tensor:
@@ -574,13 +573,8 @@ class GaussianNegativeLogLikelihood1D(LossFunction):
         estimation_true = target.float()
         
         # Formatting prediction
-        if self.log10:
-            mean_pred = torch.log10(prediction[:, 0])
-        else:
-            mean_pred = prediction[:, 0]
+        mean_pred = prediction[:, 0]
         variance_pred = softplus(prediction[:, 1])
-        
-        print(mean_pred, estimation_true)
         
         return gaussian_nll_loss(mean_pred, estimation_true, variance_pred, full = self.full, eps = self.eps, reduction='none')
     
@@ -610,7 +604,6 @@ class GaussianNegativeLogLikelihood3D(LossFunction):
         Returns:
             loss: Elementwise Gaussian Negative Log Likelihood loss terms. Shape [N,]
         """
-        target = target.reshape(-1, 3)
         # Check(s)
         assert prediction.dim() == 2 and prediction.size()[1] == 6
         assert target.dim() == 2 and target.size()[1] == 3
