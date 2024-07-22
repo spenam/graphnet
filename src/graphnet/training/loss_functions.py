@@ -544,11 +544,13 @@ class GaussianNegativeLogLikelihood1D(LossFunction):
         self,
         full: bool = True,
         eps: float = 1e-7,
+        log10: bool = True,
         *args: Any,
         **kwargs: Any,
     ) -> None:
         self.full = full
         self.eps = eps
+        self.log10 = log10
         super().__init__(*args, **kwargs)
     
     def _forward(self, prediction: Tensor, target: Tensor) -> Tensor:
@@ -572,8 +574,13 @@ class GaussianNegativeLogLikelihood1D(LossFunction):
         estimation_true = target.float()
         
         # Formatting prediction
-        mean_pred = prediction[:, 0]
+        if self.log10:
+            mean_pred = torch.log10(prediction[:, 0])
+        else:
+            mean_pred = prediction[:, 0]
         variance_pred = softplus(prediction[:, 1])
+        
+        print(mean_pred, estimation_true)
         
         return gaussian_nll_loss(mean_pred, estimation_true, variance_pred, full = self.full, eps = self.eps, reduction='none')
     

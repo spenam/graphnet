@@ -166,7 +166,6 @@ class EnergyTCReconstruction(StandardLearnedTask):
         ) + eps_like(x[:, 1].clone())
         return x
 
-
 class EnergyReconstructionWithUncertainty(EnergyReconstruction):
     """Reconstructs energy and associated uncertainty (log(var))."""
 
