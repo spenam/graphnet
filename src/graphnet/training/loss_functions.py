@@ -17,6 +17,7 @@ from torch.nn.functional import (
     cross_entropy,
     binary_cross_entropy,
     softplus,
+    gaussian_nll_loss,
 )
 
 from graphnet.models.model import Model
@@ -535,3 +536,83 @@ class RMSEVonMisesFisher3DLoss(EnsembleLoss):
             loss_factors=[1, vmfs_factor],
             prediction_keys=[[0, 1, 2], [0, 1, 2, 3]],
         )
+        
+class GaussianNegativeLogLikelihood1D(LossFunction):
+    """Gaussian Negative Log Likelihood loss function for mean and variance estimation in a single dimension."""
+
+    def __init__(
+        self,
+        full: bool = True,
+        eps: float = 1e-7,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        self.full = full
+        self.eps = eps
+        super().__init__(*args, **kwargs)
+    
+    def _forward(self, prediction: Tensor, target: Tensor) -> Tensor:
+        """Calculate Gaussian Negative Log Likelihood loss for a given mean and variance estimation in a single dimension.
+        
+        Args:
+            prediction: Output of the model. Must have shape [N, 2] where 0th
+                column is a prediction of `mean` and 1st column is an estimate
+                of `variance`.
+            target: Target tensor, extracted from graph object.
+
+        Returns:
+            loss: Elementwise Gaussian Negative Log Likelihood loss terms. Shape [N,]
+        """
+        # Check(s)
+        assert prediction.dim() == 2 and prediction.size()[1] == 2
+        assert target.dim() == 2
+        assert prediction.size()[0] == target.size()[0]
+
+        # Formatting target
+        estimation_true = target.float()
+        
+        # Formatting prediction
+        mean_pred = prediction[:, 0]
+        variance_pred = softplus(prediction[:, 1])
+        
+        return gaussian_nll_loss(mean_pred, estimation_true, variance_pred, full = self.full, eps = self.eps, reduction='none')
+    
+class GaussianNegativeLogLikelihood3D(LossFunction):
+    """Gaussian Negative Log Likelihood loss function for mean and variance estimation in three dimensions."""
+
+    def __init__(
+        self,
+        full: bool = True,
+        eps: float = 1e-7,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        self.full = full
+        self.eps = eps
+        super().__init__(*args, **kwargs)
+    
+    def _forward(self, prediction: Tensor, target: Tensor) -> Tensor:
+        """Calculate Gaussian Negative Log Likelihood loss for a given mean and variance estimation in three dimensions.
+        
+        Args:
+            prediction: Output of the model. Must have shape [N, 6] where the 
+                first 3 columns are predictions of `mean` and second 3 columns
+                are estimations of `variance`.
+            target: Target tensor, extracted from graph object.
+
+        Returns:
+            loss: Elementwise Gaussian Negative Log Likelihood loss terms. Shape [N,]
+        """
+        # Check(s)
+        assert prediction.dim() == 2 and prediction.size()[1] == 6
+        assert target.dim() == 2 and target.size()[1] == 3
+        assert prediction.size()[0] == target.size()[0]
+
+        # Formatting target
+        estimation_true = target.float()
+        
+        # Formatting prediction
+        mean_pred = prediction[:, :3]
+        variance_pred = softplus(prediction[:, 3:])
+        
+        return gaussian_nll_loss(mean_pred, estimation_true, variance_pred, full = self.full, eps = self.eps, reduction='none')
