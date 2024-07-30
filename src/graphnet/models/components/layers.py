@@ -16,7 +16,6 @@ from torch.nn.modules import TransformerEncoder, TransformerEncoderLayer
 from torch_geometric.utils import to_dense_batch
 from pytorch_lightning import LightningModule
 
-
 class DynEdgeConv(EdgeConv, LightningModule):
     """Dynamical edge convolution layer."""
 
