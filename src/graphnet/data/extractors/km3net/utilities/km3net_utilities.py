@@ -130,6 +130,7 @@ def create_unique_id_filetype(
 
 def create_unique_id(
     run_id: List[int],
+    evt_id: List[int],
     frame_index: List[int],
     trigger_counter: List[int],
 ) -> List[str]:
@@ -207,28 +208,9 @@ def classifier_column_creator(
     """Create helpful columns for the classifier."""
     is_muon = np.zeros(len(pdgid), dtype=int)
     is_track = np.zeros(len(pdgid), dtype=int)
-    is_noise = np.zeros(len(pdgid), dtype=int)
-    is_data = np.zeros(len(pdgid), dtype=int)
-    
-    #TODO add tau topology
-    """
-    primaries = f.mc_trks[:,0]
-    secondaries = f.mc_trks
-    
-    print("%"*20)
-    tau=abs(primaries.pdgid)==16
-    tau_track=np.any(np.abs(secondaries.pdgid)==13,axis=1)
-    result=np.logical_and(tau,tau_track)
-    print(secondaries.pdgid[result])
-    for i in secondaries.pdgid[result]: # this will get all track like taus, we could add a new column as 'tau_topology'
-        print(i)
 
-    """
-
-    is_muon[abs(pdgid) == 13] = 1
-    is_muon[pdgid == 81] = 1
-    is_track[abs(pdgid) == 13] = 1
-    is_track[pdgid == 81] = 1
+    is_muon[pdgid == 13] = 1
+    is_track[pdgid == 13] = 1
     is_track[(abs(pdgid) == 14) & (is_cc_flag == 1)] = 1
     is_noise[pdgid == 0] = 1
     is_data[pdgid == 99] = 1
