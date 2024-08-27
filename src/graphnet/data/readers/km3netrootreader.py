@@ -26,12 +26,8 @@ class KM3NeTROOTReader(GraphNeTFileReader):
         KM3NeTROOTTruthExtractor,
         KM3NeTROOTPulseExtractor,
         KM3NeTROOTTriggPulseExtractor,
-        KM3NeTROOTPulseDBangExtractor,
-        KM3NeTROOTTruthDBangExtractor,
-        KM3NeTROOTTruthMultiHeadExtractor,
-        KM3NeTMCTruthExtractor,
-        KM3NeTMCPulseExtractor,
-        KM3NeTROOTTruthExtractorPena,
+        #KM3NeTROOTPulseDBangExtractor,
+        #KM3NeTROOTTruthDBangExtractor,
     ]
 
     def __call__(
