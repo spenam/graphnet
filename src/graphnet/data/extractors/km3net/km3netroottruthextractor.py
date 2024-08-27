@@ -71,6 +71,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jshower_pos_x = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jshower_pos_y = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jshower_pos_z = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_x = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_y = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_z = padding_value * np.ones(len(primaries.pos_x))
                 zen_jshower, az_jshower = (
                     padding_value * np.ones(len(primaries.pos_x)),
                     padding_value * np.ones(len(primaries.pos_x)),
@@ -95,6 +98,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon_pos_x = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jmuon_pos_y = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jmuon_pos_z = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_x = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_y = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_z = padding_value * np.ones(len(primaries.pos_x))
                 zen_jmuon, az_jmuon = (
                     padding_value * np.ones(len(primaries.pos_x)),
                     padding_value * np.ones(len(primaries.pos_x)),
@@ -147,12 +153,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 "jshower_pos_x": primaries_jshower_pos_x,
                 "jshower_pos_y": primaries_jshower_pos_y,
                 "jshower_pos_z": primaries_jshower_pos_z,
+                "jshower_dir_x": primaries_jshower_dir_x,
+                "jshower_dir_y": primaries_jshower_dir_y,
+                "jshower_dir_z": primaries_jshower_dir_z,
                 "jshower_zenith": zen_jshower,
                 "jshower_azimuth": az_jshower,
                 "jmuon_E": primaries_jmuon_E,
                 "jmuon_pos_x": primaries_jmuon_pos_x,
                 "jmuon_pos_y": primaries_jmuon_pos_y,
                 "jmuon_pos_z": primaries_jmuon_pos_z,
+                "jmuon_dir_x": primaries_jmuon_dir_x,
+                "jmuon_dir_y": primaries_jmuon_dir_y,
+                "jmuon_dir_z": primaries_jmuon_dir_z,
                 "jmuon_zenith": zen_jmuon,
                 "jmuon_azimuth": az_jmuon,
                 "n_hits": np.array(file.n_hits),
@@ -209,6 +221,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jshower_pos_x = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jshower_pos_y = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jshower_pos_z = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_x = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_y = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jshower_dir_z = padding_value * np.ones(len(primaries.pos_x))
                 zen_jshower, az_jshower = (
                     padding_value * np.ones(len(primaries.pos_x)),
                     padding_value * np.ones(len(primaries.pos_x)),
@@ -233,6 +248,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon_pos_x = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jmuon_pos_y = padding_value * np.ones(len(primaries.pos_x))
                 primaries_jmuon_pos_z = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_x = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_y = padding_value * np.ones(len(primaries.pos_x))
+                primaries_jmuon_dir_z = padding_value * np.ones(len(primaries.pos_x))
                 zen_jmuon, az_jmuon = (
                     padding_value * np.ones(len(primaries.pos_x)),
                     padding_value * np.ones(len(primaries.pos_x)),
@@ -270,12 +288,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 "jshower_pos_x": primaries_jshower_pos_x,
                 "jshower_pos_y": primaries_jshower_pos_y,
                 "jshower_pos_z": primaries_jshower_pos_z,
+                "jshower_dir_x": primaries_jshower_dir_x,
+                "jshower_dir_y": primaries_jshower_dir_y,
+                "jshower_dir_z": primaries_jshower_dir_z,
                 "jshower_zenith": zen_jshower,
                 "jshower_azimuth": az_jshower,
                 "jmuon_E": primaries_jmuon_E,
                 "jmuon_pos_x": primaries_jmuon_pos_x,
                 "jmuon_pos_y": primaries_jmuon_pos_y,
                 "jmuon_pos_z": primaries_jmuon_pos_z,
+                "jmuon_dir_x": primaries_jmuon_dir_x,
+                "jmuon_dir_y": primaries_jmuon_dir_y,
+                "jmuon_dir_z": primaries_jmuon_dir_z,
                 "jmuon_zenith": zen_jmuon,
                 "jmuon_azimuth": az_jmuon,
                 "n_hits": np.array(file.n_hits),
