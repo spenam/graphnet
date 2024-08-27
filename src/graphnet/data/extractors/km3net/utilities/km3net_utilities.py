@@ -10,6 +10,7 @@ def create_unique_id_filetype(
     energy: List[float],
     is_cc_flag: List[int],
     run_id: List[int],
+    evt_id: List[int],
     frame_index: List[int],
     evt_id: List[int],
 ) -> List[str]:
