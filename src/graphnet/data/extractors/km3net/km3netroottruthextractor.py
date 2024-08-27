@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import km3io as ki
 
+
 from graphnet.data.extractors import Extractor
 from .km3netrootextractor import KM3NeTROOTExtractor
 from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
@@ -45,7 +46,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
         if abs(np.array(primaries.pdgid)[0]) not in nus_flavor:
             # it is a muon file
             # in muon files the first entry is a 81 particle, with no physical meaning
-            primaries = file.mc_trks[:, 1]
+            primaries = file.mc_trks[:, 0]
             primaries_jshower = ki.tools.best_jshower(file.trks)
             primaries_jmuon = ki.tools.best_jmuon(file.trks)
 
@@ -111,19 +112,19 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 np.array(primaries.dir_z),
             )
             unique_id = create_unique_id(
-                np.array(primaries.pdgid),
+                np.array(file.run_id),
+                np.array(file.id),
+                np.array(file.frame_index),
+                np.array(file.trigger_counter),
+            )
+            evt_id, run_id, frame_index, trigger_counter = (
+                np.array(file.id),
                 np.array(file.run_id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
             )
-            run_id, frame_index, trigger_counter = (
-                np.array(file.run_id),
-                np.array(file.frame_index),
-                np.array(file.trigger_counter),
-            )
-            livetime, n_gen = float(file.header.DAQ.livetime), int(
-                file.header.genvol.numberOfEvents
-            )
+            livetime= float(file.header.livetime.numberOfSeconds)
+            daq = float(file.header.DAQ.livetime)
 
             dict_truth = {
                 "pdgid": np.array(primaries.pdgid),
@@ -155,8 +156,11 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 "n_hits": np.array(file.n_hits),
                 "w2_gseagen_ps": padding_value * np.ones(len(primaries.pos_x)),
                 "livetime": livetime * np.ones(len(primaries.pos_x)),
-                "n_gen": n_gen * np.ones(len(primaries.pos_x)),
+                "DAQ": daq * np.ones(len(primaries.pos_x)),
+                "n_gen": padding_value * np.ones(len(primaries.pos_x)),
+                "w2": padding_value * np.ones(len(primaries.pos_x)),
                 "run_id": run_id,
+                "evt_id": evt_id,
                 "frame_index": frame_index,
                 "trigger_counter": trigger_counter,
                 "event_no": np.array(unique_id).astype(int),
@@ -174,12 +178,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 np.array(primaries.dir_y),
                 np.array(primaries.dir_z),
             )
-            try:
-                livetime, n_gen = float(file.header.DAQ.livetime), int(
-                    file.header.genvol.numberOfEvents
-                )
-            except (ValueError, AttributeError):
-                livetime, n_gen = 0, 0
+
+            livetime = float(file.header.DAQ.livetime)
+            n_gen = int(1/file.w[:,3])
             
             primaries_jshower = ki.tools.best_jshower(file.trks)
             primaries_jmuon = ki.tools.best_jmuon(file.trks)
@@ -235,12 +236,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
 
             unique_id = create_unique_id(
-                np.array(primaries.pdgid),
                 np.array(file.run_id),
+                np.array(file.id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
             )
-            run_id, frame_index, trigger_counter = (
+            evt_id, run_id, frame_index, trigger_counter = (
+                np.array(file.id),
                 np.array(file.run_id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
@@ -275,9 +277,12 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 "jmuon_azimuth": az_jmuon,
                 "n_hits": np.array(file.n_hits),
                 "w2_gseagen_ps": np.array(file.w2list[:, 0]),
+                "w2": np.array(file.w[:, 1]),
                 "livetime": livetime * np.ones(len(primaries.pos_x)),
-                "n_gen": n_gen * np.ones(len(primaries.pos_x)),
+                "DAQ": livetime * np.ones(len(primaries.pos_x)),
+                "n_gen": n_gen,
                 "run_id": run_id,
+                "evt_id": evt_id,
                 "frame_index": frame_index,
                 "trigger_counter": trigger_counter,
                 "event_no": np.array(unique_id).astype(int),
