@@ -6,16 +6,18 @@ import pandas as pd
 
 
 def create_unique_id(
-    pdg_id: List[int],
     run_id: List[int],
+    evt_id: List[int],
     frame_index: List[int],
     trigger_counter: List[int],
 ) -> List[str]:
-    """Create unique ID as run_id, frame_index, trigger_counter."""
+    """Create unique ID as run_id, evt_id, frame_index, trigger_counter."""
     unique_id = []
-    for i in range(len(pdg_id)):
+    for i in range(len(run_id)):
         unique_id.append(
             str(run_id[i])
+            + "0"
+            + str(evt_id[i])
             + "0"
             + str(frame_index[i])
             + "0"
@@ -67,7 +69,9 @@ def classifier_column_creator(
     is_track = np.zeros(len(pdgid), dtype=int)
 
     is_muon[pdgid == 13] = 1
+    is_muon[pdgid == 81] = 1
     is_track[pdgid == 13] = 1
+    is_track[pdgid == 81] = 1
     is_track[(abs(pdgid) == 14) & (is_cc_flag == 1)] = 1
 
     return is_muon, is_track
