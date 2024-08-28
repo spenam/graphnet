@@ -9,8 +9,8 @@ from graphnet.data.extractors.km3net import (
     KM3NeTROOTTruthExtractor,
     KM3NeTROOTPulseExtractor,
     KM3NeTROOTTriggPulseExtractor,
-    KM3NeTROOTPulseDBangExtractor,
-    KM3NeTROOTTruthDBangExtractor,
+    #KM3NeTROOTPulseDBangExtractor,
+    #KM3NeTROOTTruthDBangExtractor,
 )
 
 
@@ -26,8 +26,8 @@ class KM3NeTROOTReader(GraphNeTFileReader):
         KM3NeTROOTTruthExtractor,
         KM3NeTROOTPulseExtractor,
         KM3NeTROOTTriggPulseExtractor,
-        KM3NeTROOTPulseDBangExtractor,
-        KM3NeTROOTTruthDBangExtractor,
+        #KM3NeTROOTPulseDBangExtractor,
+        #KM3NeTROOTTruthDBangExtractor,
     ]
 
     def __call__(

@@ -15,9 +15,11 @@ def create_unique_id(
     unique_id = []
     for i in range(len(run_id)):
         unique_id.append(
-            str(run_id[i])
-            + "0"
-            + str(evt_id[i])
+            #str(run_id[i])
+            #+ "0"
+            #+ str(evt_id[i])
+            #+ "0"
+            str(evt_id[i])
             + "0"
             + str(frame_index[i])
             + "0"
@@ -79,7 +81,7 @@ def classifier_column_creator(
 
 def creating_time_zero(df: pd.DataFrame) -> pd.DataFrame:
     """Shift the event time so that the first hit has zero in time."""
-    df = df.sort_values(by=["event_no", "t"])
+    #df = df.sort_values(by=["event_no", "t"])
     df["min_t"] = df.groupby("event_no")["t"].transform("min")
     df["t"] = df["t"] - df["min_t"]
     df = df.drop(["min_t"], axis=1)

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import km3io as ki
 
-from weight_events_oscprob import compute_evt_weight
+#from .weight_events_oscprob import compute_evt_weight
 
 
 from graphnet.data.extractors import Extractor
@@ -195,7 +195,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             )
 
             livetime = float(file.header.DAQ.livetime)
-            n_gen = int(1/file.w[:,3])
+            n_gen = 1/file.w[:,3]
             
             primaries_jshower = ki.tools.best_jshower(file.trks)
             primaries_jmuon = ki.tools.best_jmuon(file.trks)
@@ -313,7 +313,8 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 "frame_index": frame_index,
                 "trigger_counter": trigger_counter,
                 "event_no": np.array(unique_id).astype(int),
-                "w_osc": compute_evt_weight(np.array(primaries.pdgid),np.array(primaries.E),np.array(primaries.dir_z),np.array(file.w2list[:, 10] == 2),np.array(file.w[:, 1]),n_gen,livetime*np.ones(len(primaries.pos_x))),
+                #"w_osc": compute_evt_weight(np.array(primaries.pdgid),np.array(primaries.E),np.array(primaries.dir_z),np.array(file.w2list[:, 10] == 2),np.array(file.w[:, 1]),n_gen,livetime*np.ones(len(primaries.pos_x))),
+                "w_osc": padding_value * np.ones(len(primaries.pos_x)),
             }
 
         truth_df = pd.DataFrame(dict_truth)

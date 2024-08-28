@@ -3,6 +3,7 @@
 from typing import Any, Dict
 import numpy as np
 import pandas as pd
+import awkward as ak
 
 from graphnet.data.extractors import Extractor
 from .km3netrootextractor import KM3NeTROOTExtractor
@@ -45,8 +46,8 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         """
         primaries = file.mc_trks[:, 0]
         unique_id = create_unique_id(
-            np.array(primaries.pdgid),
             np.array(file.run_id),
+            np.array(file.id),
             np.array(file.frame_index),
             np.array(file.trigger_counter),
         )  # creates the unique_id
@@ -64,13 +65,15 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
             "trig",
         ]
 
-        pandas_df = hits.arrays(keys_to_extract, library="pd")
+        pandas_df = ak.to_dataframe(hits.arrays(keys_to_extract, library="ak"))
         df = pandas_df.reset_index()
         unique_extended = []
         for index in df["entry"].values:
+        #for index in df["index"].values:
             unique_extended.append(int(unique_id[index]))
         df["event_no"] = unique_extended
         df = df.drop(["entry", "subentry"], axis=1)
         df = creating_time_zero(df)
+        print(df)
 
         return df
