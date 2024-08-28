@@ -77,6 +77,5 @@ class KM3NeTROOTTriggPulseExtractor(KM3NeTROOTExtractor):
 
         df = df.drop(["entry", "subentry"], axis=1)
         df = creating_time_zero(df)
-        print(df)
 
         return df
