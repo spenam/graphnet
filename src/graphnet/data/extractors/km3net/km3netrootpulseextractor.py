@@ -45,7 +45,6 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         Returns:
             pd.DataFrame: A dataframe containing pulse information.
         """
-        primaries = file.mc_trks[:, 0]
         unique_id = create_unique_id(
             np.array(file.run_id),
             np.array(file.frame_index),

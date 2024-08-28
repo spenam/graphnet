@@ -46,7 +46,6 @@ class KM3NeTROOTTriggPulseExtractor(KM3NeTROOTExtractor):
 
         Analogous to the KM3NeTROOTPulseExtractor but doing cuts on trig.
         """
-        primaries = file.mc_trks[:, 0]
         unique_id = create_unique_id(
             np.array(file.run_id),
             np.array(file.frame_index),
