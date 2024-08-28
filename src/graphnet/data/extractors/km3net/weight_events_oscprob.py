@@ -4,7 +4,8 @@
 import ROOT
 import numpy as np
 import km3flux
-from utils_osc import _zipequalize, _pdgid2flavor
+from .utils_osc import _zipequalize, _pdgid2flavor
+import argparse
 
 
 OscProbDir = "/pbs/throng/km3net/software/oscprob/1.3"
