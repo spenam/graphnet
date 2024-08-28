@@ -68,14 +68,15 @@ class KM3NeTROOTTriggPulseExtractor(KM3NeTROOTExtractor):
         pandas_df = ak.to_dataframe(hits.arrays(keys_to_extract, library="ak"))
         df = pandas_df.reset_index()
         unique_extended = []
-        for index in df["entry"].values:
+        #for index in df["entry"].values:
+        for index in df["index"].values:
             unique_extended.append(int(unique_id[index]))
         df["event_no"] = unique_extended
 
         # keep only trigg pulses
         df = df[df["trig"] != 0]
 
-        df = df.drop(["entry", "subentry"], axis=1)
+        #df = df.drop(["entry", "subentry"], axis=1)
         df = creating_time_zero(df)
         print(df)
 

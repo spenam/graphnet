@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import km3io as ki
 
-from weight_events_oscprob import compute_evt_weight
+#from .weight_events_oscprob import compute_evt_weight
 
 
 from graphnet.data.extractors import Extractor

@@ -76,6 +76,7 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
             E,
             is_cc_flag,
             np.array(file.run_id),
+            np.array(file.id),
             np.array(file.frame_index),
             np.array(file.id),
         )

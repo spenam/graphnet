@@ -134,6 +134,7 @@ def create_unique_id(
     frame_index: List[int],
     trigger_counter: List[int],
 ) -> List[str]:
+<<<<<<< HEAD
     """Create unique ID as run_id*1e9 + frame_index*1e6 + trigger_counter,
     hopefully this won't create clashes of events having a the same unique ID
     which is veeeery unlikely but could happen"""
@@ -146,6 +147,35 @@ def create_unique_id(
     #    )
     unique_id = run_id * 1e9 + frame_index * 1e6 + trigger_counter
 
+||||||| parent of 4da7cb78 (Fix problem generating sqlite files)
+    """Create unique ID as run_id, evt_id, frame_index, trigger_counter."""
+    unique_id = []
+    for i in range(len(run_id)):
+        unique_id.append(
+            str(run_id[i])
+            + "0"
+            + str(evt_id[i])
+            + "0"
+            + str(frame_index[i])
+            + "0"
+            + str(trigger_counter[i])
+        )
+=======
+    """Create unique ID as run_id, evt_id, frame_index, trigger_counter."""
+    unique_id = []
+    for i in range(len(run_id)):
+        unique_id.append(
+            #str(run_id[i])
+            #+ "0"
+            #+ str(evt_id[i])
+            #+ "0"
+            str(evt_id[i])
+            + "0"
+            + str(frame_index[i])
+            + "0"
+            + str(trigger_counter[i])
+        )
+>>>>>>> 4da7cb78 (Fix problem generating sqlite files)
 
     return unique_id
 
