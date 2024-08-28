@@ -193,5 +193,6 @@ class TRUTH:
         "is_track",
         "is_muon",
         "is_noise",
+        "is_data",
         "w_osc",
     ]

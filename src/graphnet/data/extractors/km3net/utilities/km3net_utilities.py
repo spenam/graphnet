@@ -65,6 +65,7 @@ def classifier_column_creator(
     is_muon = np.zeros(len(pdgid), dtype=int)
     is_track = np.zeros(len(pdgid), dtype=int)
     is_noise = np.zeros(len(pdgid), dtype=int)
+    is_data = np.zeros(len(pdgid), dtype=int)
     
     #TODO add tau topology
     """
@@ -87,8 +88,9 @@ def classifier_column_creator(
     is_track[pdgid == 81] = 1
     is_track[(abs(pdgid) == 14) & (is_cc_flag == 1)] = 1
     is_noise[pdgid == 0] = 1
+    is_data[pdgid == 99] = 1
 
-    return is_muon, is_track, is_noise
+    return is_muon, is_track, is_noise, is_data
 
 
 def creating_time_zero(df: pd.DataFrame) -> pd.DataFrame:
