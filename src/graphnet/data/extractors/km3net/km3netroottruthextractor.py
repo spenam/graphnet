@@ -121,7 +121,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             )
             unique_id = create_unique_id(
                 np.array(file.run_id),
-                np.array(file.id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
             )
@@ -258,7 +257,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
 
             unique_id = create_unique_id(
                 np.array(file.run_id),
-                np.array(file.id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
             )
@@ -318,10 +316,11 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             }
 
         truth_df = pd.DataFrame(dict_truth)
-        is_muon, is_track = classifier_column_creator(
+        is_muon, is_track, is_noise = classifier_column_creator(
             np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
         )
         truth_df["is_muon"] = is_muon
         truth_df["is_track"] = is_track
+        truth_df["is_noise"] = is_noise
 
         return truth_df

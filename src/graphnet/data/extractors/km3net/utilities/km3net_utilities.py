@@ -7,19 +7,14 @@ import pandas as pd
 
 def create_unique_id(
     run_id: List[int],
-    evt_id: List[int],
     frame_index: List[int],
     trigger_counter: List[int],
 ) -> List[str]:
-    """Create unique ID as run_id, evt_id, frame_index, trigger_counter."""
+    """Create unique ID as run_id, frame_index, trigger_counter."""
     unique_id = []
     for i in range(len(run_id)):
         unique_id.append(
-            #str(run_id[i])
-            #+ "0"
-            #+ str(evt_id[i])
-            #+ "0"
-            str(evt_id[i])
+            str(run_id[i])
             + "0"
             + str(frame_index[i])
             + "0"
@@ -69,14 +64,31 @@ def classifier_column_creator(
     """Create helpful columns for the classifier."""
     is_muon = np.zeros(len(pdgid), dtype=int)
     is_track = np.zeros(len(pdgid), dtype=int)
+    is_noise = np.zeros(len(pdgid), dtype=int)
+    
+    #TODO add tau topology
+    """
+    primaries = f.mc_trks[:,0]
+    secondaries = f.mc_trks
+    
+    print("%"*20)
+    tau=abs(primaries.pdgid)==16
+    tau_track=np.any(np.abs(secondaries.pdgid)==13,axis=1)
+    result=np.logical_and(tau,tau_track)
+    print(secondaries.pdgid[result])
+    for i in secondaries.pdgid[result]: # this will get all track like taus, we could add a new column as 'tau_topology'
+        print(i)
 
-    is_muon[pdgid == 13] = 1
+    """
+
+    is_muon[abs(pdgid) == 13] = 1
     is_muon[pdgid == 81] = 1
-    is_track[pdgid == 13] = 1
+    is_track[abs(pdgid) == 13] = 1
     is_track[pdgid == 81] = 1
     is_track[(abs(pdgid) == 14) & (is_cc_flag == 1)] = 1
+    is_noise[pdgid == 0] = 1
 
-    return is_muon, is_track
+    return is_muon, is_track, is_noise
 
 
 def creating_time_zero(df: pd.DataFrame) -> pd.DataFrame:

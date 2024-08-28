@@ -192,5 +192,6 @@ class TRUTH:
         "event_no",
         "is_track",
         "is_muon",
+        "is_noise",
         "w_osc",
     ]
