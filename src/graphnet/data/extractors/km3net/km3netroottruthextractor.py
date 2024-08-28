@@ -133,7 +133,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             )
             unique_id = create_unique_id(
                 np.array(file.run_id),
-                np.array(file.id),
                 np.array(file.frame_index),
                 np.array(file.trigger_counter),
             )
