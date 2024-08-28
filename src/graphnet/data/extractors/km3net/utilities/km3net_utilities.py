@@ -257,3 +257,21 @@ def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
     return filtered_df
 
 
+
+def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
+    """Mask saturated PMTs in each event independently"""
+    condition_rows = df[df['tot'] > tot][['event_no', 'channel_id', 'dom_id']]
+    merged_df = df.merge(condition_rows, on=['event_no', 'channel_id', 'dom_id'], how='left', indicator=True)
+    filtered_df = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+    return filtered_df
+
+
+
+def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
+    """Mask saturated PMTs in each event independently"""
+    condition_rows = df[df['tot'] > tot][['event_no', 'channel_id', 'dom_id']]
+    merged_df = df.merge(condition_rows, on=['event_no', 'channel_id', 'dom_id'], how='left', indicator=True)
+    filtered_df = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+    return filtered_df
