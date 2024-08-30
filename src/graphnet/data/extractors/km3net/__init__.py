@@ -4,3 +4,4 @@ from .km3netrootextractor import KM3NeTROOTExtractor
 from .km3netrootpulseextractor import KM3NeTROOTPulseExtractor
 from .km3netroottruthextractor import KM3NeTROOTTruthExtractor
 from .km3netroottriggpulseextractor import KM3NeTROOTTriggPulseExtractor
+#from .weight_events_oscprob import compute_evt_weight
