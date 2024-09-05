@@ -178,6 +178,7 @@ def xyz_dir_to_zen_az(
     dir_x: List[float],
     dir_y: List[float],
     dir_z: List[float],
+    padding_value: float,
 ) -> Tuple[List[float], List[float]]:
     """Convert direction vector to zenith and azimuth angles."""
     # Compute zenith angle (elevation angle)
@@ -191,6 +192,10 @@ def xyz_dir_to_zen_az(
     az_centered = azimuth + np.pi * np.ones(
         len(azimuth)
     )  # Center the azimuth angle around zero
+    #check for NaN in the zenith and replace with padding_value
+    zenith[np.isnan(zenith)] = padding_value
+    #change the azimuth values to padding value if the zenith is padding value
+    az_centered[zenith == padding_value] = padding_value
 
     return zenith, az_centered
 
@@ -198,7 +203,6 @@ def xyz_dir_to_zen_az(
 def classifier_column_creator(
     pdgid: np.ndarray,
     is_cc_flag: List[int],
-    tau_topology: List[int],
 ) -> Tuple[List[int], List[int]]:
     """Create helpful columns for the classifier."""
     is_muon = np.zeros(len(pdgid), dtype=int)
