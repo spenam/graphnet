@@ -7,7 +7,7 @@ import pandas as pd
 from graphnet.data.extractors import Extractor
 from .km3netrootextractor import KM3NeTROOTExtractor
 from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
-    create_unique_id,
+    create_unique_id_filetype,
     assert_no_uint_values,
     creating_time_zero,
 )
@@ -43,13 +43,45 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         Returns:
             pd.DataFrame: A dataframe containing pulse information.
         """
-        primaries = file.mc_trks[:, 0]
-        unique_id = create_unique_id(
-            np.array(primaries.pdgid),
-            np.array(file.run_id),
-            np.array(file.frame_index),
-            np.array(file.trigger_counter),
-        )  # creates the unique_id
+
+        #if data
+
+        if len(file.mc_trks.E[0]>0):
+            #evts are neutrinos or muons
+            primaries = file.mc_trks[:, 0]
+            unique_id = create_unique_id_filetype(
+                    np.array(primaries.pdgid),
+                    np.array(primaries.E),
+                    np.ones(len(primaries.pdgid)),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.id),
+            )  # extract the unique_id
+
+        else:
+            #evts are noise or data
+            if file.header['calibration']=="dynamical":
+                #this is data
+                unique_id = create_unique_id_filetype(
+                    26 * np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.id),
+            )  # extract the unique_id
+            
+            else:
+                #this is noise
+                unique_id = create_unique_id_filetype(
+                    np.zeros(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.id),
+            )
+
 
         hits = file.hits
         keys_to_extract = [

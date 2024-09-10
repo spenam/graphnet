@@ -37,8 +37,9 @@ class KM3NeTROOTReader(GraphNeTFileReader):
         Returns:
               data in a list of ordered dataframes with a unique ID.
         """
+        print(file_path)
         file = ki.OfflineReader(file_path)
-        if len(file.mc_trks[:, 0]) > 0:
+        if len(file.trks) > 0:
             data = {}
             for extractor in self._extractors:
                 data[extractor._extractor_name] = extractor(
