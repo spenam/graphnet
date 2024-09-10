@@ -131,43 +131,6 @@ def create_unique_id_filetype(
 
 
 
-
-
-def create_unique_id(
-    pdg_id: List[int],
-    run_id: List[int],
-    frame_index: List[int],
-    trigger_counter: List[int],
-) -> List[str]:
-    """Create unique ID as run_id, frame_index, trigger_counter."""
-    unique_id = []
-    for i in range(len(pdg_id)):
-        unique_id.append(
-            str(run_id[i])
-            + "0"
-            + str(frame_index[i])
-            + "0"
-            + str(trigger_counter[i])
-        )
-
-    return unique_id
-
-def create_unique_id_dbang(
-    energy: List[float],
-    pos_x: List[float],
-    ids: List[int],
-) -> List[str]:
-    """Create unique ID for double bang events."""
-    unique_id = []
-    for i in range(len(energy)):
-        unique_id.append(
-            str(ids[i])
-            + str(int(1000*energy[i]))
-            + str(int(abs(1000*pos_x[i])))
-        )
-    return unique_id
-
-
 def xyz_dir_to_zen_az(
     dir_x: List[float],
     dir_y: List[float],
@@ -244,30 +207,4 @@ def assert_no_uint_values(df: pd.DataFrame) -> pd.DataFrame:
             df[column] = df[column].astype("int32")
         elif df[column].dtype == "uint64":
             df[column] = df[column].astype("int64")
-    return df
-
-
-def pmt_id_to_pos_dir(
-        df: pd.DataFrame,
-        det_file: str) -> pd.DataFrame:
-    """Extract the position and direction of the hit from the pmt_id."""
-    # Extract the position and direction of the hit from the pmt_id
-
-    det = kp.hardware.Detector(det_file)
-
-
-    pos_x = np.array([det.pmt_with_id(pmt_id).pos_x for pmt_id in df["pmt_id"]])
-    pos_y = np.array([det.pmt_with_id(pmt_id).pos_y for pmt_id in df["pmt_id"]])
-    pos_z = np.array([det.pmt_with_id(pmt_id).pos_z for pmt_id in df["pmt_id"]])
-    dir_x = np.array([det.pmt_with_id(pmt_id).dir_x for pmt_id in df["pmt_id"]])
-    dir_y = np.array([det.pmt_with_id(pmt_id).dir_y for pmt_id in df["pmt_id"]])
-    dir_z = np.array([det.pmt_with_id(pmt_id).dir_z for pmt_id in df["pmt_id"]])
-
-    df["pos_x"] = pos_x
-    df["pos_y"] = pos_y
-    df["pos_z"] = pos_z
-    df["dir_x"] = dir_x
-    df["dir_y"] = dir_y
-    df["dir_z"] = dir_z
-
     return df

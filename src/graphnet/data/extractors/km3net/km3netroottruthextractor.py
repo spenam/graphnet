@@ -13,6 +13,7 @@ from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
     xyz_dir_to_zen_az,
     assert_no_uint_values,
 )
+#from graphnet.data.extractors.km3net.utilities.weight_events_oscprob import compute_evt_weight
 
 
 class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
@@ -39,81 +40,62 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             pd.DataFrame: A dataframe containing truth information.
         """
         nus_flavor = [12, 14, 16]
-        primaries = file.mc_trks[:, 0]
-        padding_value = 999.0
+        padding_value = 99999999.0
+        if len(file.mc_trks.E[0]>0):
+            primaries = file.mc_trks[:, 0]
 
-        if abs(np.array(primaries.pdgid)[0]) not in nus_flavor:
-            # it is a muon file
-            # in muon files the first entry is a 81 particle, with no physical meaning
-            primaries = file.mc_trks[:, 1]
-            primaries_jshower = ki.tools.best_jshower(file.trks)
-            primaries_jmuon = ki.tools.best_jmuon(file.trks)
+            if abs(np.array(primaries.pdgid)[0]) not in nus_flavor:
+                # it is a muon file
+                # in muon files the first entry is a 81 particle, with no physical meaning
+                primaries = file.mc_trks[:, 0]
+                primaries_jshower = ki.tools.best_jshower(file.trks)
+                primaries_jmuon = ki.tools.best_jmuon(file.trks)
 
-            #check if if has a jshower reconstruction
-            if primaries_jshower.E[0] is not None:
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])#primaries_jshower.E
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])#primaries_jshower.pos_x
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])#primaries_jshower.pos_y
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])#primaries_jshower.pos_z
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])#primaries_jshower.dir_x
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])#primaries_jshower.dir_y
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])#primaries_jshower.dir_z
+                #check if if has a jshower reconstruction
+                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
                     primaries_jshower_dir_z,
                     padding_value,
                 )
-            else:
-                primaries_jshower_E = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_x = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_y = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_z = padding_value * np.ones(len(primaries.pos_x))
-                zen_jshower, az_jshower = (
-                    padding_value * np.ones(len(primaries.pos_x)),
-                    padding_value * np.ones(len(primaries.pos_x)),
-                )
-                
-            #check if if has a jmuon reconstruction
-            if primaries_jmuon.E[0] is not None:
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])#primaries_jmuon.E
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])#primaries_jmuon.pos_x
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])#primaries_jmuon.pos_y
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])#primaries_jmuon.pos_z
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])#primaries_jmuon.dir_x
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])#primaries_jmuon.dir_y
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])#primaries_jmuon.dir_z
+                    
+                #check if if has a jmuon reconstruction
+                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
                     primaries_jmuon_dir_z,
                     padding_value,
                 )
-            else:
-                primaries_jmuon_E = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_x = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_y = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_z = padding_value * np.ones(len(primaries.pos_x))
-                zen_jmuon, az_jmuon = (
-                    padding_value * np.ones(len(primaries.pos_x)),
-                    padding_value * np.ones(len(primaries.pos_x)),
+
+
+
+                # construct some quantities
+                zen_truth, az_truth = xyz_dir_to_zen_az(
+                    np.array(primaries.dir_x),
+                    np.array(primaries.dir_y),
+                    np.array(primaries.dir_z),
+                    padding_value,
                 )
-
-
-
-            # construct some quantities
-            zen_truth, az_truth = xyz_dir_to_zen_az(
-                np.array(primaries.dir_x),
-                np.array(primaries.dir_y),
-                np.array(primaries.dir_z),
-                padding_value,
-            )
-            part_dir_x, part_dir_y, part_dir_z = (
-                np.array(primaries.dir_x),
-                np.array(primaries.dir_y),
-                np.array(primaries.dir_z),
-            )
-            unique_id = create_unique_id_filetype(
+                part_dir_x, part_dir_y, part_dir_z = (
+                    np.array(primaries.dir_x),
+                    np.array(primaries.dir_y),
+                    np.array(primaries.dir_z),
+                )
+                unique_id = create_unique_id_filetype(
                 np.array(primaries.pdgid),
                 np.array(primaries.E),
                 np.ones(len(primaries.pdgid)),
@@ -121,190 +103,404 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 np.array(file.frame_index),
                 np.array(file.id),
             )
-            run_id, frame_index, trigger_counter = (
-                np.array(file.run_id),
-                np.array(file.frame_index),
-                np.array(file.trigger_counter),
-            )
-            try:
-                livetime, n_gen = float(file.header.DAQ.livetime), int(
-                    file.header.genvol.numberOfEvents
+                evt_id, run_id, frame_index, trigger_counter = (
+                    np.array(file.id),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.trigger_counter),
                 )
-            except (ValueError, AttributeError):
-                livetime, n_gen = padding_value, padding_value
+                livetime= float(file.header.livetime.numberOfSeconds)
+                daq = float(file.header.DAQ.livetime)
 
-            dict_truth = {
-                "pdgid": np.array(primaries.pdgid),
-                "vrx_x": np.array(primaries.pos_x),
-                "vrx_y": np.array(primaries.pos_y),
-                "vrx_z": np.array(primaries.pos_z),
-                "zenith": zen_truth,
-                "azimuth": az_truth,
-                "part_dir_x": part_dir_x,
-                "part_dir_y": part_dir_y,
-                "part_dir_z": part_dir_z,
-                "Energy": np.array(primaries.E),
-                "Bj_x": padding_value * np.ones(len(primaries.pos_x)),
-                "Bj_y": padding_value * np.ones(len(primaries.pos_x)),
-                "i_chan": padding_value * np.ones(len(primaries.pos_x)),
-                "is_cc_flag": padding_value * np.ones(len(primaries.pos_x)),
-                "jshower_E": primaries_jshower_E,
-                "jshower_pos_x": primaries_jshower_pos_x,
-                "jshower_pos_y": primaries_jshower_pos_y,
-                "jshower_pos_z": primaries_jshower_pos_z,
-                "jshower_zenith": zen_jshower,
-                "jshower_azimuth": az_jshower,
-                "jmuon_E": primaries_jmuon_E,
-                "jmuon_pos_x": primaries_jmuon_pos_x,
-                "jmuon_pos_y": primaries_jmuon_pos_y,
-                "jmuon_pos_z": primaries_jmuon_pos_z,
-                "jmuon_zenith": zen_jmuon,
-                "jmuon_azimuth": az_jmuon,
-                "n_hits": np.array(file.n_hits),
-                "w2_gseagen_ps": padding_value * np.ones(len(primaries.pos_x)),
-                "livetime": livetime * np.ones(len(primaries.pos_x)),
-                "n_gen": n_gen * np.ones(len(primaries.pos_x)),
-                "run_id": run_id,
-                "frame_index": frame_index,
-                "trigger_counter": trigger_counter,
-                "tau_topology": padding_value * np.ones(len(primaries.pos_x)),
-                "event_no": np.array(unique_id).astype(int),
-            }
+                dict_truth = {
+                    "pdgid": np.array(primaries.pdgid),
+                    "vrx_x": np.array(primaries.pos_x),
+                    "vrx_y": np.array(primaries.pos_y),
+                    "vrx_z": np.array(primaries.pos_z),
+                    "zenith": zen_truth,
+                    "azimuth": az_truth,
+                    "part_dir_x": part_dir_x,
+                    "part_dir_y": part_dir_y,
+                    "part_dir_z": part_dir_z,
+                    "Energy": np.array(primaries.E),
+                    "Bj_x": padding_value * np.ones(len(primaries.pos_x)),
+                    "Bj_y": padding_value * np.ones(len(primaries.pos_x)),
+                    "i_chan": padding_value * np.ones(len(primaries.pos_x)),
+                    "is_cc_flag": padding_value * np.ones(len(primaries.pos_x)),
+                    "jshower_E": primaries_jshower_E,
+                    "jshower_pos_x": primaries_jshower_pos_x,
+                    "jshower_pos_y": primaries_jshower_pos_y,
+                    "jshower_pos_z": primaries_jshower_pos_z,
+                    "jshower_dir_x": primaries_jshower_dir_x,
+                    "jshower_dir_y": primaries_jshower_dir_y,
+                    "jshower_dir_z": primaries_jshower_dir_z,
+                    "jshower_zenith": zen_jshower,
+                    "jshower_azimuth": az_jshower,
+                    "jmuon_E": primaries_jmuon_E,
+                    "jmuon_pos_x": primaries_jmuon_pos_x,
+                    "jmuon_pos_y": primaries_jmuon_pos_y,
+                    "jmuon_pos_z": primaries_jmuon_pos_z,
+                    "jmuon_dir_x": primaries_jmuon_dir_x,
+                    "jmuon_dir_y": primaries_jmuon_dir_y,
+                    "jmuon_dir_z": primaries_jmuon_dir_z,
+                    "jmuon_zenith": zen_jmuon,
+                    "jmuon_azimuth": az_jmuon,
+                    "n_hits": np.array(file.n_hits),
+                    "w2_gseagen_ps": padding_value * np.ones(len(primaries.pos_x)),
+                    "livetime": livetime * np.ones(len(primaries.pos_x)),
+                    "DAQ": daq * np.ones(len(primaries.pos_x)),
+                    "n_gen": padding_value * np.ones(len(primaries.pos_x)),
+                    "w2": padding_value * np.ones(len(primaries.pos_x)),
+                    "run_id": run_id,
+                    "evt_id": evt_id,
+                    "frame_index": frame_index,
+                    "trigger_counter": trigger_counter,
+                    "event_no": np.array(unique_id).astype(int),
+                    "w_osc": (daq/livetime) * np.ones(len(primaries.pos_x)),
+                }
 
-        else:
-            # the particle is a neutrino
-            zen_truth, az_truth = xyz_dir_to_zen_az(
-                np.array(primaries.dir_x),
-                np.array(primaries.dir_y),
-                np.array(primaries.dir_z),
-                padding_value,
-            )
-            part_dir_x, part_dir_y, part_dir_z = (
-                np.array(primaries.dir_x),
-                np.array(primaries.dir_y),
-                np.array(primaries.dir_z),
-            )
-            run_id, frame_index, trigger_counter = (
-                np.array(file.run_id),
-                np.array(file.frame_index),
-                np.array(file.trigger_counter),
-            )
-            try:
-                livetime, n_gen = float(file.header.DAQ.livetime), int(
-                    file.header.genvol.numberOfEvents
+            else:
+                # the particle is a neutrino
+                zen_truth, az_truth = xyz_dir_to_zen_az(
+                    np.array(primaries.dir_x),
+                    np.array(primaries.dir_y),
+                    np.array(primaries.dir_z),
+                    padding_value,
                 )
-            except (ValueError, AttributeError):
-                livetime, n_gen = padding_value, padding_value
-            
-            primaries_jshower = ki.tools.best_jshower(file.trks)
-            primaries_jmuon = ki.tools.best_jmuon(file.trks)
+                part_dir_x, part_dir_y, part_dir_z = (
+                    np.array(primaries.dir_x),
+                    np.array(primaries.dir_y),
+                    np.array(primaries.dir_z),
+                )
 
-            # for tau CC it is not clear what the second interaction is; 1 for shower, 2 for track, 3 for nothing
-            tau_topologies = [2 if 16 in np.abs(primaries.pdgid) and 13 in np.abs(file.mc_trks.pdgid[i]) else 1 if 16 in np.abs(primaries.pdgid) else 3 for i in range(len(primaries.pdgid))]
-            
-            #check if if has a jshower reconstruction
-            if primaries_jshower.E[0] is not None:
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])#primaries_jshower.E
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])#primaries_jshower.pos_x
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])#primaries_jshower.pos_y
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])#primaries_jshower.pos_z
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])#primaries_jshower.dir_x
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])#primaries_jshower.dir_y
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])#primaries_jshower.dir_z
+                livetime = float(file.header.DAQ.livetime)
+                n_gen = 1/file.w[:,3]
+                
+                primaries_jshower = ki.tools.best_jshower(file.trks)
+                primaries_jmuon = ki.tools.best_jmuon(file.trks)
+
+                
+                #check if if has a jshower reconstruction
+                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
                     primaries_jshower_dir_z,
                     padding_value,
                 )
-            
-            else:
-                primaries_jshower_E = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_x = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_y = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jshower_pos_z = padding_value * np.ones(len(primaries.pos_x))
-                zen_jshower, az_jshower = (
-                    padding_value * np.ones(len(primaries.pos_x)),
-                    padding_value * np.ones(len(primaries.pos_x)),
-                )
-            
-            
-            if primaries_jmuon.E[0] is not None:
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])#primaries_jmuon.E
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])#primaries_jmuon.pos_x
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])#primaries_jmuon.pos_y
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])#primaries_jmuon.pos_z
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])#primaries_jmuon.dir_x
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])#primaries_jmuon.dir_y
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])#primaries_jmuon.dir_z
-                zen_jmuon, az_jmuon = xyz_dir_to_zen_az( #TODO: Check that this two lists have dont have null values
+                
+                
+                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
                     primaries_jmuon_dir_z,
                     padding_value,
                 )
-            else:
-                primaries_jmuon_E = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_x = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_y = padding_value * np.ones(len(primaries.pos_x))
-                primaries_jmuon_pos_z = padding_value * np.ones(len(primaries.pos_x))
-                zen_jmuon, az_jmuon = (
-                    padding_value * np.ones(len(primaries.pos_x)),
-                    padding_value * np.ones(len(primaries.pos_x)),
-                )
 
-            unique_id = create_unique_id_filetype(
+                unique_id = create_unique_id_filetype(
                 np.array(primaries.pdgid),
                 np.array(primaries.E),
-                np.array(file.w2list[:, 10] == 2),
+                np.ones(len(primaries.pdgid)),
                 np.array(file.run_id),
                 np.array(file.frame_index),
                 np.array(file.id),
             )
+                evt_id, run_id, frame_index, trigger_counter = (
+                    np.array(file.id),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.trigger_counter),
+                )
 
-            dict_truth = {
-                "pdgid": np.array(primaries.pdgid),
-                "vrx_x": np.array(primaries.pos_x),
-                "vrx_y": np.array(primaries.pos_y),
-                "vrx_z": np.array(primaries.pos_z),
-                "zenith": zen_truth,
-                "azimuth": az_truth,
-                "part_dir_x": part_dir_x,
-                "part_dir_y": part_dir_y,
-                "part_dir_z": part_dir_z,
-                "Energy": np.array(primaries.E),
-                "Bj_x": np.array(file.w2list[:, 7]),
-                "Bj_y": np.array(file.w2list[:, 8]),
-                "i_chan": np.array(file.w2list[:, 9]),
-                "is_cc_flag": np.array(file.w2list[:, 10] == 2),
-                "jshower_E": primaries_jshower_E,
-                "jshower_pos_x": primaries_jshower_pos_x,
-                "jshower_pos_y": primaries_jshower_pos_y,
-                "jshower_pos_z": primaries_jshower_pos_z,
-                "jshower_zenith": zen_jshower,
-                "jshower_azimuth": az_jshower,
-                "jmuon_E": primaries_jmuon_E,
-                "jmuon_pos_x": primaries_jmuon_pos_x,
-                "jmuon_pos_y": primaries_jmuon_pos_y,
-                "jmuon_pos_z": primaries_jmuon_pos_z,
-                "jmuon_zenith": zen_jmuon,
-                "jmuon_azimuth": az_jmuon,
-                "n_hits": np.array(file.n_hits),
-                "w2_gseagen_ps": np.array(file.w2list[:, 0]),
-                "livetime": livetime * np.ones(len(primaries.pos_x)),
-                "n_gen": n_gen * np.ones(len(primaries.pos_x)),
-                "run_id": run_id,
-                "frame_index": frame_index,
-                "trigger_counter": trigger_counter,
-                "tau_topology": tau_topologies,
-                "event_no": np.array(unique_id).astype(int),
-            }
+                dict_truth = {
+                    "pdgid": np.array(primaries.pdgid),
+                    "vrx_x": np.array(primaries.pos_x),
+                    "vrx_y": np.array(primaries.pos_y),
+                    "vrx_z": np.array(primaries.pos_z),
+                    "zenith": zen_truth,
+                    "azimuth": az_truth,
+                    "part_dir_x": part_dir_x,
+                    "part_dir_y": part_dir_y,
+                    "part_dir_z": part_dir_z,
+                    "Energy": np.array(primaries.E),
+                    "Bj_x": np.array(file.w2list[:, 7]),
+                    "Bj_y": np.array(file.w2list[:, 8]),
+                    "i_chan": np.array(file.w2list[:, 9]),
+                    "is_cc_flag": np.array(file.w2list[:, 10] == 2),
+                    "jshower_E": primaries_jshower_E,
+                    "jshower_pos_x": primaries_jshower_pos_x,
+                    "jshower_pos_y": primaries_jshower_pos_y,
+                    "jshower_pos_z": primaries_jshower_pos_z,
+                    "jshower_dir_x": primaries_jshower_dir_x,
+                    "jshower_dir_y": primaries_jshower_dir_y,
+                    "jshower_dir_z": primaries_jshower_dir_z,
+                    "jshower_zenith": zen_jshower,
+                    "jshower_azimuth": az_jshower,
+                    "jmuon_E": primaries_jmuon_E,
+                    "jmuon_pos_x": primaries_jmuon_pos_x,
+                    "jmuon_pos_y": primaries_jmuon_pos_y,
+                    "jmuon_pos_z": primaries_jmuon_pos_z,
+                    "jmuon_dir_x": primaries_jmuon_dir_x,
+                    "jmuon_dir_y": primaries_jmuon_dir_y,
+                    "jmuon_dir_z": primaries_jmuon_dir_z,
+                    "jmuon_zenith": zen_jmuon,
+                    "jmuon_azimuth": az_jmuon,
+                    "n_hits": np.array(file.n_hits),
+                    "w2_gseagen_ps": np.array(file.w2list[:, 0]),
+                    "w2": np.array(file.w[:, 1]),
+                    "livetime": livetime * np.ones(len(primaries.pos_x)),
+                    "DAQ": livetime * np.ones(len(primaries.pos_x)),
+                    "n_gen": n_gen,
+                    "run_id": run_id,
+                    "evt_id": evt_id,
+                    "frame_index": frame_index,
+                    "trigger_counter": trigger_counter,
+                    "event_no": np.array(unique_id).astype(int),
+                    #"w_osc": compute_evt_weight(np.array(primaries.pdgid),np.array(primaries.E),np.array(primaries.dir_z),np.array(file.w2list[:, 10] == 2),np.array(file.w[:, 1]),n_gen,livetime*np.ones(len(primaries.pos_x))),
+                    "w_osc": padding_value * np.ones(len(primaries.pos_x)),
+                }
 
-        truth_df = pd.DataFrame(dict_truth)
-        is_muon, is_track = classifier_column_creator(
-            np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"]), np.array(dict_truth["tau_topology"])
-        )
-        truth_df["is_muon"] = is_muon
-        truth_df["is_track"] = is_track
+            truth_df = pd.DataFrame(dict_truth)
+            is_muon, is_track, is_noise, is_data = classifier_column_creator(
+                np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
+            )
+            truth_df["is_muon"] = is_muon
+            truth_df["is_track"] = is_track
+            truth_df["is_noise"] = is_noise
+            truth_df["is_data"] = is_data
+        else:
+
+            if file.header['calibration']=="dynamical": #data file
+                primaries_jshower = ki.tools.best_jshower(file.trks)
+                primaries_jmuon = ki.tools.best_jmuon(file.trks)
+
+                #check if if has a jshower reconstruction
+                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                zen_jshower, az_jshower = xyz_dir_to_zen_az(
+                    primaries_jshower_dir_x,
+                    primaries_jshower_dir_y,
+                    primaries_jshower_dir_z,
+                    padding_value,
+                )
+                    
+                #check if if has a jmuon reconstruction
+                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
+                    primaries_jmuon_dir_x,
+                    primaries_jmuon_dir_y,
+                    primaries_jmuon_dir_z,
+                    padding_value,
+                )
+
+
+
+                # construct some quantities
+                zen_truth, az_truth = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E))
+                part_dir_x, part_dir_y, part_dir_z = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E)),padding_value * np.ones(len(primaries_jmuon.E))
+                unique_id = create_unique_id_filetype(
+                    26 * np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.id),
+            )
+                evt_id, run_id, frame_index, trigger_counter = (
+                    np.array(file.id),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.trigger_counter),
+                )
+                daq = float(file.header.DAQ.livetime)
+                livetime= float(file.header.DAQ.livetime)
+
+                dict_truth = {
+                    "pdgid": 99 * np.ones(len(primaries_jmuon.E),dtype=int),
+                    "vrx_x": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "vrx_y": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "vrx_z": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "zenith": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "azimuth": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_x": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_y": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_z": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "Energy": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "Bj_x": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "Bj_y": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "i_chan": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "is_cc_flag": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "jshower_E": primaries_jshower_E,
+                    "jshower_pos_x": primaries_jshower_pos_x,
+                    "jshower_pos_y": primaries_jshower_pos_y,
+                    "jshower_pos_z": primaries_jshower_pos_z,
+                    "jshower_dir_x": primaries_jshower_dir_x,
+                    "jshower_dir_y": primaries_jshower_dir_y,
+                    "jshower_dir_z": primaries_jshower_dir_z,
+                    "jshower_zenith": zen_jshower,
+                    "jshower_azimuth": az_jshower,
+                    "jmuon_E": primaries_jmuon_E,
+                    "jmuon_pos_x": primaries_jmuon_pos_x,
+                    "jmuon_pos_y": primaries_jmuon_pos_y,
+                    "jmuon_pos_z": primaries_jmuon_pos_z,
+                    "jmuon_dir_x": primaries_jmuon_dir_x,
+                    "jmuon_dir_y": primaries_jmuon_dir_y,
+                    "jmuon_dir_z": primaries_jmuon_dir_z,
+                    "jmuon_zenith": zen_jmuon,
+                    "jmuon_azimuth": az_jmuon,
+                    "n_hits": np.array(file.n_hits),
+                    "w2_gseagen_ps": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "livetime": livetime * np.ones(len(primaries_jmuon.pos_x)),
+                    "DAQ": daq * np.ones(len(primaries_jmuon.pos_x)),
+                    "n_gen": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "w2": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "run_id": run_id,
+                    "evt_id": evt_id,
+                    "frame_index": frame_index,
+                    "trigger_counter": trigger_counter,
+                    "event_no": np.array(unique_id).astype(int),
+                    "w_osc": np.ones(len(primaries_jmuon.pos_x)),
+                }
+
+            else:
+                # the event is pure noise
+                primaries_jshower = ki.tools.best_jshower(file.trks)
+                primaries_jmuon = ki.tools.best_jmuon(file.trks)
+
+                #check if if has a jshower reconstruction
+                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                zen_jshower, az_jshower = xyz_dir_to_zen_az(
+                    primaries_jshower_dir_x,
+                    primaries_jshower_dir_y,
+                    primaries_jshower_dir_z,
+                    padding_value,
+                )
+                    
+                #check if if has a jmuon reconstruction
+                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
+                    primaries_jmuon_dir_x,
+                    primaries_jmuon_dir_y,
+                    primaries_jmuon_dir_z,
+                    padding_value,
+                )
+
+
+
+                # construct some quantities
+                zen_truth, az_truth = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E))
+                part_dir_x, part_dir_y, part_dir_z = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E)),padding_value * np.ones(len(primaries_jmuon.E))
+                unique_id = create_unique_id_filetype(
+                    np.zeros(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.ones(len(file.run_id)),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.id),
+            )
+                evt_id, run_id, frame_index, trigger_counter = (
+                    np.array(file.id),
+                    np.array(file.run_id),
+                    np.array(file.frame_index),
+                    np.array(file.trigger_counter),
+                )
+
+                daq = float(file.header.DAQ.livetime)
+                livetime= float(file.header.K40) # simulated noise
+
+                dict_truth = {
+                    "pdgid": np.zeros(len(primaries_jmuon.E),dtype=int),
+                    "vrx_x": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "vrx_y": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "vrx_z": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "zenith": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "azimuth": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_x": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_y": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "part_dir_z": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "Energy": padding_value * np.ones(len(primaries_jmuon.E)),
+                    "Bj_x": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "Bj_y": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "i_chan": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "is_cc_flag": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "jshower_E": primaries_jshower_E,
+                    "jshower_pos_x": primaries_jshower_pos_x,
+                    "jshower_pos_y": primaries_jshower_pos_y,
+                    "jshower_pos_z": primaries_jshower_pos_z,
+                    "jshower_dir_x": primaries_jshower_dir_x,
+                    "jshower_dir_y": primaries_jshower_dir_y,
+                    "jshower_dir_z": primaries_jshower_dir_z,
+                    "jshower_zenith": zen_jshower,
+                    "jshower_azimuth": az_jshower,
+                    "jmuon_E": primaries_jmuon_E,
+                    "jmuon_pos_x": primaries_jmuon_pos_x,
+                    "jmuon_pos_y": primaries_jmuon_pos_y,
+                    "jmuon_pos_z": primaries_jmuon_pos_z,
+                    "jmuon_dir_x": primaries_jmuon_dir_x,
+                    "jmuon_dir_y": primaries_jmuon_dir_y,
+                    "jmuon_dir_z": primaries_jmuon_dir_z,
+                    "jmuon_zenith": zen_jmuon,
+                    "jmuon_azimuth": az_jmuon,
+                    "n_hits": np.array(file.n_hits),
+                    "w2_gseagen_ps": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "livetime": livetime * np.ones(len(primaries_jmuon.pos_x)),
+                    "DAQ": daq * np.ones(len(primaries_jmuon.pos_x)),
+                    "n_gen": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "w2": padding_value * np.ones(len(primaries_jmuon.pos_x)),
+                    "run_id": run_id,
+                    "evt_id": evt_id,
+                    "frame_index": frame_index,
+                    "trigger_counter": trigger_counter,
+                    "event_no": np.array(unique_id).astype(int),
+                    "w_osc": (daq/livetime) * np.ones(len(primaries_jmuon.pos_x)),
+                }
+
+                
+
+            truth_df = pd.DataFrame(dict_truth)
+            is_muon, is_track, is_noise, is_data = classifier_column_creator(
+                np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
+            )
+            truth_df["is_muon"] = is_muon
+            truth_df["is_track"] = is_track
+            truth_df["is_noise"] = is_noise
+            truth_df["is_data"] = is_data
+            
 
         return truth_df
