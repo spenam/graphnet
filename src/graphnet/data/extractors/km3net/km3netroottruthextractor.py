@@ -125,7 +125,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "Energy": np.array(primaries.E),
                     "Bj_x": padding_value * np.ones(len(primaries.pos_x)),
                     "Bj_y": padding_value * np.ones(len(primaries.pos_x)),
-                    "i_chan": padding_value * np.ones(len(primaries.pos_x)),
                     "is_cc_flag": padding_value * np.ones(len(primaries.pos_x)),
                     "jshower_E": primaries_jshower_E,
                     "jshower_pos_x": primaries_jshower_pos_x,
@@ -146,16 +145,12 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "jmuon_zenith": zen_jmuon,
                     "jmuon_azimuth": az_jmuon,
                     "n_hits": np.array(file.n_hits),
-                    "w2_gseagen_ps": padding_value * np.ones(len(primaries.pos_x)),
-                    "livetime": livetime * np.ones(len(primaries.pos_x)),
-                    "DAQ": daq * np.ones(len(primaries.pos_x)),
-                    "n_gen": padding_value * np.ones(len(primaries.pos_x)),
-                    "w2": padding_value * np.ones(len(primaries.pos_x)),
                     "run_id": run_id,
                     "evt_id": evt_id,
                     "frame_index": frame_index,
                     "trigger_counter": trigger_counter,
                     "event_no": np.array(unique_id).astype(int),
+                    "tau_topology": padding_value * np.ones(len(primaries.pos_x)),
                     "w_osc": (daq/livetime) * np.ones(len(primaries.pos_x)),
                 }
 
@@ -174,7 +169,10 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
 
                 livetime = float(file.header.DAQ.livetime)
-                n_gen = 1/file.w[:,3]
+                try:
+                    file.header.genvol.numberOfEvents #single header
+                except:
+                    n_gen = 1/file.w[:,3] #multiheader
                 
                 primaries_jshower = ki.tools.best_jshower(file.trks)
                 primaries_jmuon = ki.tools.best_jmuon(file.trks)
@@ -225,6 +223,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     np.array(file.trigger_counter),
                 )
 
+                # for tau CC it is not clear what the second interaction is; 1 for shower, 2 for track, 3 for nothing
+                tau_topologies = [2 if 16 in np.abs(primaries.pdgid) and 13 in np.abs(file.mc_trks.pdgid[i]) else 1 if 16 in np.abs(primaries.pdgid) else 3 for i in range(len(primaries.pdgid))]
+
                 dict_truth = {
                     "pdgid": np.array(primaries.pdgid),
                     "vrx_x": np.array(primaries.pos_x),
@@ -238,7 +239,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "Energy": np.array(primaries.E),
                     "Bj_x": np.array(file.w2list[:, 7]),
                     "Bj_y": np.array(file.w2list[:, 8]),
-                    "i_chan": np.array(file.w2list[:, 9]),
                     "is_cc_flag": np.array(file.w2list[:, 10] == 2),
                     "jshower_E": primaries_jshower_E,
                     "jshower_pos_x": primaries_jshower_pos_x,
@@ -259,28 +259,15 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "jmuon_zenith": zen_jmuon,
                     "jmuon_azimuth": az_jmuon,
                     "n_hits": np.array(file.n_hits),
-                    "w2_gseagen_ps": np.array(file.w2list[:, 0]),
-                    "w2": np.array(file.w[:, 1]),
-                    "livetime": livetime * np.ones(len(primaries.pos_x)),
-                    "DAQ": livetime * np.ones(len(primaries.pos_x)),
-                    "n_gen": n_gen,
                     "run_id": run_id,
                     "evt_id": evt_id,
                     "frame_index": frame_index,
                     "trigger_counter": trigger_counter,
                     "event_no": np.array(unique_id).astype(int),
+                    "tau_topology": tau_topologies ,
                     #"w_osc": compute_evt_weight(np.array(primaries.pdgid),np.array(primaries.E),np.array(primaries.dir_z),np.array(file.w2list[:, 10] == 2),np.array(file.w[:, 1]),n_gen,livetime*np.ones(len(primaries.pos_x))),
                     "w_osc": padding_value * np.ones(len(primaries.pos_x)),
                 }
-
-            truth_df = pd.DataFrame(dict_truth)
-            is_muon, is_track, is_noise, is_data = classifier_column_creator(
-                np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
-            )
-            truth_df["is_muon"] = is_muon
-            truth_df["is_track"] = is_track
-            truth_df["is_noise"] = is_noise
-            truth_df["is_data"] = is_data
         else:
 
             if file.header['calibration']=="dynamical": #data file
@@ -352,7 +339,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "Energy": padding_value * np.ones(len(primaries_jmuon.E)),
                     "Bj_x": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "Bj_y": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "i_chan": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "is_cc_flag": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "jshower_E": primaries_jshower_E,
                     "jshower_pos_x": primaries_jshower_pos_x,
@@ -373,16 +359,12 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "jmuon_zenith": zen_jmuon,
                     "jmuon_azimuth": az_jmuon,
                     "n_hits": np.array(file.n_hits),
-                    "w2_gseagen_ps": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "livetime": livetime * np.ones(len(primaries_jmuon.pos_x)),
-                    "DAQ": daq * np.ones(len(primaries_jmuon.pos_x)),
-                    "n_gen": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "w2": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "run_id": run_id,
                     "evt_id": evt_id,
                     "frame_index": frame_index,
                     "trigger_counter": trigger_counter,
                     "event_no": np.array(unique_id).astype(int),
+                    "tau_topology": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "w_osc": np.ones(len(primaries_jmuon.pos_x)),
                 }
 
@@ -457,7 +439,6 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "Energy": padding_value * np.ones(len(primaries_jmuon.E)),
                     "Bj_x": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "Bj_y": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "i_chan": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "is_cc_flag": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "jshower_E": primaries_jshower_E,
                     "jshower_pos_x": primaries_jshower_pos_x,
@@ -478,29 +459,25 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     "jmuon_zenith": zen_jmuon,
                     "jmuon_azimuth": az_jmuon,
                     "n_hits": np.array(file.n_hits),
-                    "w2_gseagen_ps": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "livetime": livetime * np.ones(len(primaries_jmuon.pos_x)),
-                    "DAQ": daq * np.ones(len(primaries_jmuon.pos_x)),
-                    "n_gen": padding_value * np.ones(len(primaries_jmuon.pos_x)),
-                    "w2": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "run_id": run_id,
                     "evt_id": evt_id,
                     "frame_index": frame_index,
                     "trigger_counter": trigger_counter,
                     "event_no": np.array(unique_id).astype(int),
+                    "tau_topology": padding_value * np.ones(len(primaries_jmuon.pos_x)),
                     "w_osc": (daq/livetime) * np.ones(len(primaries_jmuon.pos_x)),
                 }
 
                 
 
-            truth_df = pd.DataFrame(dict_truth)
-            is_muon, is_track, is_noise, is_data = classifier_column_creator(
-                np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
-            )
-            truth_df["is_muon"] = is_muon
-            truth_df["is_track"] = is_track
-            truth_df["is_noise"] = is_noise
-            truth_df["is_data"] = is_data
+        truth_df = pd.DataFrame(dict_truth)
+        is_muon, is_track, is_noise, is_data = classifier_column_creator(
+            np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
+        )
+        truth_df["is_muon"] = is_muon
+        truth_df["is_track"] = is_track
+        truth_df["is_noise"] = is_noise
+        truth_df["is_data"] = is_data
             
 
         return truth_df
