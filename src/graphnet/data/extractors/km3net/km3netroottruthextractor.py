@@ -18,6 +18,7 @@ from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
     assert_no_uint_values,
     filter_None_NaN,
 )
+#from graphnet.data.extractors.km3net.utilities.weight_events_oscprob import compute_evt_weight
 
 
 class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
