@@ -16,6 +16,7 @@ from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
 #from graphnet.data.extractors.km3net.utilities.weight_events_oscprob import compute_evt_weight
 
 
+
 class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
     """Class for extracting the truth information from a file."""
 
@@ -59,6 +60,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
                 primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
                 primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
@@ -74,6 +76,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
                 primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
                 primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
@@ -381,6 +384,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
                 primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
                 primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
@@ -396,6 +400,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
                 primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
                 primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
@@ -472,6 +477,7 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
 
         truth_df = pd.DataFrame(dict_truth)
         is_muon, is_track, is_noise, is_data = classifier_column_creator(
+
             np.array(dict_truth["pdgid"]), np.array(dict_truth["is_cc_flag"])
         )
         truth_df["is_muon"] = is_muon
@@ -481,3 +487,4 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
             
 
         return truth_df
+

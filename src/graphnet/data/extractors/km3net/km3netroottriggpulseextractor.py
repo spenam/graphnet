@@ -66,6 +66,7 @@ class KM3NeTROOTTriggPulseExtractor(KM3NeTROOTExtractor):
             )  # extract the unique_id
 
 
+
         hits = file.hits
         keys_to_extract = [
             "t",

@@ -43,6 +43,7 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         Returns:
             pd.DataFrame: A dataframe containing pulse information.
         """
+
         #if data
 
         if len(file.mc_trks.E[0]>0):
@@ -81,7 +82,6 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
                     np.array(file.id),
             )
 
-       
 
         hits = file.hits
         keys_to_extract = [

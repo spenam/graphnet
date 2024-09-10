@@ -127,8 +127,8 @@ def create_unique_id_filetype(
         #compute the unique_id as evt_id + run_id + file_id + frame_index
         unique_id.append(str(evt_id[i]) + '000' + str(run_id[i]) + '0' + str(file_id))
 
-    return unique_id
 
+    return unique_id
 
 
 def xyz_dir_to_zen_az(
@@ -136,6 +136,7 @@ def xyz_dir_to_zen_az(
     dir_y: List[float],
     dir_z: List[float],
     padding_value: float,
+
 ) -> Tuple[List[float], List[float]]:
     """Convert direction vector to zenith and azimuth angles."""
     # Compute zenith angle (elevation angle)
@@ -208,3 +209,4 @@ def assert_no_uint_values(df: pd.DataFrame) -> pd.DataFrame:
         elif df[column].dtype == "uint64":
             df[column] = df[column].astype("int64")
     return df
+
