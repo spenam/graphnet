@@ -13,6 +13,7 @@ from .km3netrootextractor import KM3NeTROOTExtractor
 from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
     classifier_column_creator,
     create_unique_id,
+    create_unique_id_filetype,
     xyz_dir_to_zen_az,
     assert_no_uint_values,
 )
@@ -94,10 +95,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     np.array(primaries.dir_y),
                     np.array(primaries.dir_z),
                 )
-                unique_id = create_unique_id(
+                #unique_id = create_unique_id(
+                #    np.array(file.run_id),
+                #    np.array(file.frame_index),
+                #    np.array(file.trigger_counter),
+                #)
+                unique_id = create_unique_id_filetype(
+                    np.array(primaries.pdgid),
+                    np.array(primaries.E),
+                    np.array(padding_value * np.ones(len(primaries.pos_x))),
                     np.array(file.run_id),
                     np.array(file.frame_index),
-                    np.array(file.trigger_counter),
+                    np.array(file.id),
                 )
                 evt_id, run_id, frame_index, trigger_counter = (
                     np.array(file.id),
@@ -203,10 +212,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                     primaries_jmuon_dir_z,
                 )
 
-                unique_id = create_unique_id(
+                #unique_id = create_unique_id(
+                #    np.array(file.run_id),
+                #    np.array(file.frame_index),
+                #    np.array(file.trigger_counter),
+                #)
+                unique_id = create_unique_id_filetype(
+                    np.array(primaries.pdgid),
+                    np.array(primaries.E),
+                    np.array(np.array(file.w2list[:, 10] == 2)),
                     np.array(file.run_id),
                     np.array(file.frame_index),
-                    np.array(file.trigger_counter),
+                    np.array(file.id),
                 )
                 evt_id, run_id, frame_index, trigger_counter = (
                     np.array(file.id),
@@ -310,10 +327,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 # construct some quantities
                 zen_truth, az_truth = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E))
                 part_dir_x, part_dir_y, part_dir_z = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E)),padding_value * np.ones(len(primaries_jmuon.E))
-                unique_id = create_unique_id(
+                #unique_id = create_unique_id(
+                #    np.array(file.run_id),
+                #    np.array(file.frame_index),
+                #    np.array(file.trigger_counter),
+                #)
+                unique_id = create_unique_id_filetype(
+                    99 * np.ones(len(primaries_jmuon.E),dtype=int),
+                    np.array(padding_value * np.ones(len(primaries_jmuon.pos_x))),
+                    np.array(padding_value * np.ones(len(primaries_jmuon.pos_x))),
                     np.array(file.run_id),
                     np.array(file.frame_index),
-                    np.array(file.trigger_counter),
+                    np.array(file.id),
                 )
                 evt_id, run_id, frame_index, trigger_counter = (
                     np.array(file.id),
@@ -409,10 +434,18 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 # construct some quantities
                 zen_truth, az_truth = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E))
                 part_dir_x, part_dir_y, part_dir_z = padding_value * np.ones(len(primaries_jmuon.E)), padding_value * np.ones(len(primaries_jmuon.E)),padding_value * np.ones(len(primaries_jmuon.E))
-                unique_id = create_unique_id(
+                #unique_id = create_unique_id(
+                #    np.array(file.run_id),
+                #    np.array(file.frame_index),
+                #    np.array(file.trigger_counter),
+                #)
+                unique_id = create_unique_id_filetype(
+                    np.zeros(len(primaries_jmuon.E),dtype=int),
+                    np.array(padding_value * np.ones(len(primaries_jmuon.pos_x))),
+                    np.array(padding_value * np.ones(len(primaries_jmuon.pos_x))),
                     np.array(file.run_id),
                     np.array(file.frame_index),
-                    np.array(file.trigger_counter),
+                    np.array(file.id),
                 )
                 evt_id, run_id, frame_index, trigger_counter = (
                     np.array(file.id),

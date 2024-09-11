@@ -4,11 +4,13 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 import awkward as ak
+import km3io as ki
 
 from graphnet.data.extractors import Extractor
 from .km3netrootextractor import KM3NeTROOTExtractor
 from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
     create_unique_id,
+    create_unique_id_filetype,
     mask_saturated_pmts,
     assert_no_uint_values,
     creating_time_zero,
@@ -45,11 +47,38 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         Returns:
             pd.DataFrame: A dataframe containing pulse information.
         """
-        unique_id = create_unique_id(
+        #unique_id = create_unique_id(
+        #    np.array(file.run_id),
+        #    np.array(file.frame_index),
+        #    np.array(file.trigger_counter),
+        #)  # creates the unique_id
+        padding_value = 99999999.0
+        nus_flavor = [12, 14, 16]
+        if len(file.mc_trks.E[0]>0):
+            primaries = file.mc_trks[:, 0]
+            E = np.array(primaries.E)
+            pdgid = np.array(primaries.pdgid)
+            if abs(np.array(primaries.pdgid)[0]) not in nus_flavor:
+                # it is a muon file
+                is_cc_flag= np.array(padding_value * np.ones(len(primaries.pos_x)))
+            else:   
+                is_cc_flag=np.array(np.array(file.w2list[:, 10] == 2))
+        else:
+            primaries_jmuon = ki.tools.best_jmuon(file.trks)
+            E = padding_value * np.ones(len(primaries_jmuon.E))
+            is_cc_flag= np.array(padding_value * np.ones(len(primaries_jmuon.E)))
+            if file.header['calibration']=='dynamical': #data file
+                pdgid = 99 * np.ones(len(primaries_jmuon.E),dtype=int)
+            else:
+                pdgid = np.zeros(len(primaries_jmuon.E),dtype=int)
+        unique_id = create_unique_id_filetype(
+            pdgid,
+            E,
+            is_cc_flag,
             np.array(file.run_id),
             np.array(file.frame_index),
-            np.array(file.trigger_counter),
-        )  # creates the unique_id
+            np.array(file.id),
+        )
 
         hits = file.hits
         keys_to_extract = [
@@ -74,13 +103,18 @@ class KM3NeTROOTPulseExtractor(KM3NeTROOTExtractor):
         for index in df["entry"].values:
         #for index in df["index"].values:
             unique_extended.append(int(unique_id[index]))
-        df["event_no"] = unique_extended
+        df["event_no"] = np.array(unique_extended).astype(int)
         # keep only non saturated pmts or DOMs
         if mask_saturated_pmts:
             df = mask_saturated_pmts(df)
-            df = df.drop(["channel_id", "dom_id"], axis=1)
+            for k in ["channel_id","dom_id"]:
+                if k not in keys_to_extract:
+                    df = df.drop(k, axis=1)
 
         df = df.drop(["entry", "subentry"], axis=1)
+        for k in ["tot","trig","channel_id","dom_id","event_no"]:
+            if k in df.columns:
+                df[k]=df[k].astype('int64')
         df = creating_time_zero(df)
         print(df)
 
