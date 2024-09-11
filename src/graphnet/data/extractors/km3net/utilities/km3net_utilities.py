@@ -1,24 +1,145 @@
 """Code with some functionalities for the extraction."""
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union, Literal
 
 import numpy as np
 import pandas as pd
 
+def create_unique_id_filetype(
+    pdg_id: List[int],
+    energy: List[float],
+    is_cc_flag: List[int],
+    run_id: List[int],
+    frame_index: List[int],
+    evt_id: List[int],
+) -> List[str]:
+    """Creating a code for each type of flavor and energy range."""
+    code_dict = {'elec_1_100': 1, #TODO check if the enery ranges are suitable for ARCA
+                    'elec_100_500': 2,
+                    'elec_500_10000': 3,
+                    'muon_1_100': 4,
+                    'muon_100_500': 5,
+                    'muon_500_10000': 6,
+                    'tau_1_100': 7,
+                    'tau_100_500': 8,
+                    'tau_500_10000': 9,
+                    'anti_elec_1_100': 10,
+                    'anti_elec_100_500': 11,
+                    'anti_elec_500_10000': 12,
+                    'anti_muon_1_100': 13,
+                    'anti_muon_100_500': 14,
+                    'anti_muon_500_10000': 15,
+                    'anti_tau_1_100': 16,
+                    'anti_tau_100_500': 17,
+                    'anti_tau_500_10000': 18,
+                    'NC_1_100': 19,
+                    'NC_100_500': 20,
+                    'NC_500_10000': 21,
+                    'anti_NC_1_100': 22,
+                    'anti_NC_100_500': 23,
+                    'anti_NC_500_10000': 24,
+                    'atm_muon': 25,
+                    'noise': 26,
+                    'data': 27
+                    }
+    
+    unique_id = []
+    for i in range(len(pdg_id)):
+        #compute the file_id
+        #for electrons
+        if pdg_id[i] == 12:
+            if energy[i] < 100:
+                file_id = code_dict['elec_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                file_id = code_dict['elec_100_500']
+            else:
+                file_id = code_dict['elec_500_10000']
+        #for muons
+        if pdg_id[i] == 14:
+            if energy[i] < 100:
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['muon_1_100']
+                else:
+                    file_id = code_dict['NC_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['muon_100_500']
+                else:
+                    file_id = code_dict['NC_100_500']
+            else:
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['muon_500_10000']
+                else:
+                    file_id = code_dict['NC_500_10000']
+        #for taus
+        if pdg_id[i] == 16:
+            if energy[i] < 100:
+                file_id = code_dict['tau_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                file_id = code_dict['tau_100_500']
+            else:
+                file_id = code_dict['tau_500_10000']
+        #for anti-electrons
+        if pdg_id[i] == -12:
+            if energy[i] < 100:
+                file_id = code_dict['anti_elec_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                file_id = code_dict['anti_elec_100_500']
+            else:
+                file_id = code_dict['anti_elec_500_10000']
+        #for anti-muons
+        if pdg_id[i] == -14:
+            if energy[i] < 100:
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['anti_muon_1_100']
+                else:
+                    file_id = code_dict['anti_NC_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['anti_muon_100_500']
+                else:
+                    file_id = code_dict['anti_NC_100_500']
+            else:
+                if is_cc_flag[i] == 1:
+                    file_id = code_dict['anti_muon_500_10000']
+                else:
+                    file_id = code_dict['anti_NC_500_10000']
+        #for anti-taus
+        if pdg_id[i] == -16:
+            if energy[i] < 100:
+                file_id = code_dict['anti_tau_1_100']
+            elif (energy[i] >= 100) & (energy[i] < 500):
+                file_id = code_dict['anti_tau_100_500']
+            else:
+                file_id = code_dict['anti_tau_500_10000']
+        #for atmospheric muons
+        if pdg_id[i] not in [12, 14, 16, -12, -14, -16, 0, 99]:
+            file_id = code_dict['atm_muon']
+        #for noise
+        if pdg_id[i] == 0:
+            file_id = code_dict['noise']
+        #for data
+        if pdg_id[i] == 99:
+            file_id = code_dict['data']
+
+        #compute the unique_id as file_id + run_id + evt_id 
+        unique_id.append(str(file_id) + '0' + str(run_id[i]) + '0' + str(evt_id[i]))
+
+    return unique_id
 
 def create_unique_id(
     run_id: List[int],
     frame_index: List[int],
     trigger_counter: List[int],
 ) -> List[str]:
-    """Create unique ID as run_id, frame_index, trigger_counter."""
+    """Create unique ID as run_id*1e9 + frame_index*1e6 + trigger_counter,
+    hopefully this won't create clashes of events having a the same unique ID
+    which is veeeery unlikely but could happen"""
     unique_id = []
     for i in range(len(run_id)):
         unique_id.append(
-            str(run_id[i])
-            + "0"
-            + str(frame_index[i])
-            + "0"
-            + str(trigger_counter[i])
+            run_id[i]*1e9 + 
+            frame_index[i]*1e6 +
+            trigger_counter[i]
         )
 
     return unique_id
@@ -119,3 +240,5 @@ def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
     filtered_df = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
 
     return filtered_df
+
+
