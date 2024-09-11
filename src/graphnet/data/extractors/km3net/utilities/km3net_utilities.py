@@ -3,6 +3,7 @@ from typing import List, Tuple, Any, Union, Literal
 
 import numpy as np
 import pandas as pd
+import math
 
 def create_unique_id_filetype(
     pdg_id: List[int],
@@ -143,6 +144,16 @@ def create_unique_id(
         )
 
     return unique_id
+
+def filter_None_NaN(
+    value: Union[float, None, Literal[math.nan]],
+    padding_value: float,
+) -> float:
+    """Removes None or Nan values and transforms it to padding float value."""
+    if value is None or math.isnan(value):
+        return padding_value
+    else:
+        return value
 
 def create_unique_id_dbang(
     energy: List[float],
