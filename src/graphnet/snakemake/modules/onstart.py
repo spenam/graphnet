@@ -30,6 +30,7 @@ def is_resource_needed(workflow, resource):
 def onstart_wrapper(workflow, config):
     """ Wrapper for onstart action """
 
+
     logger.info("-"*20 + " On start checks " + "-"*20)
     irods_need = is_resource_needed(workflow, "irods_socket")
 
@@ -51,8 +52,8 @@ def onstart_wrapper(workflow, config):
                         HOME="./"
                         iinit
                         """
-                        ,container_img=config['irods_settings']['container'],
-                        singularity_args = workflow.singularity_args)
+                        ,container_img=config['irods_settings']['container'],)
+                        #singularity_args = workflow.singularity_args)
 
                 except subprocess.CalledProcessError as E:
                     logger.error("Error when trying call iinit. Maybe a wrong iRods password ?")
