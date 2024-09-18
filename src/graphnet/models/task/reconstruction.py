@@ -204,6 +204,30 @@ class PositionReconstruction(StandardLearnedTask):
         return x
 
 
+class PositionReconstructionWithUncertainty(EnergyReconstruction):
+    """Reconstructs vertex position and associated uncertainty (log(var))."""
+
+    # Requires one feature in addition to `EnergyReconstruction`: log-variance (uncertainty).
+    default_target_labels = ["position"]
+    default_prediction_labels = [
+        "position_x_pred", 
+        "position_y_pred", 
+        "position_z_pred", 
+        "position_x_sigma", 
+        "position_y_sigma", 
+        "position_z_sigma",
+    ]
+    nb_inputs = 6
+
+    def _forward(self, x: Tensor) -> Tensor:
+        # Scale to roughly the right order of magnitude
+        x[:, 0] = x[:, 0] * 1e2
+        x[:, 1] = x[:, 1] * 1e2
+        x[:, 2] = x[:, 2] * 1e2
+
+        return x
+
+
 class TimeReconstruction(StandardLearnedTask):
     """Reconstructs time."""
 

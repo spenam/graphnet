@@ -12,6 +12,8 @@ from graphnet.data.extractors.km3net.utilities.km3net_utilities import (
     create_unique_id_filetype,
     xyz_dir_to_zen_az,
     assert_no_uint_values,
+    filter_None_NaN,
+
 )
 #from graphnet.data.extractors.km3net.utilities.weight_events_oscprob import compute_evt_weight
 
@@ -53,13 +55,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon = ki.tools.best_jmuon(file.trks)
 
                 #check if if has a jshower reconstruction
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                primaries_jshower_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_z])
 
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
@@ -69,13 +71,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
                     
                 #check if if has a jmuon reconstruction
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                primaries_jmuon_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_z])
 
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
@@ -182,13 +184,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
 
                 
                 #check if if has a jshower reconstruction
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                primaries_jshower_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_z])
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
@@ -197,13 +199,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
                 
                 
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                primaries_jmuon_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_z])
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
@@ -278,13 +280,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon = ki.tools.best_jmuon(file.trks)
 
                 #check if if has a jshower reconstruction
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                primaries_jshower_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_z])
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
                     primaries_jshower_dir_y,
@@ -293,13 +295,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
                     
                 #check if if has a jmuon reconstruction
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                primaries_jmuon_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_z])
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
@@ -377,13 +379,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon = ki.tools.best_jmuon(file.trks)
 
                 #check if if has a jshower reconstruction
-                primaries_jshower_E = np.array([padding_value if element is None else element for element in primaries_jshower.E])
-                primaries_jshower_pos_x = np.array([padding_value if element is None else element for element in primaries_jshower.pos_x])
-                primaries_jshower_pos_y = np.array([padding_value if element is None else element for element in primaries_jshower.pos_y])
-                primaries_jshower_pos_z = np.array([padding_value if element is None else element for element in primaries_jshower.pos_z])
-                primaries_jshower_dir_x = np.array([padding_value if element is None else element for element in primaries_jshower.dir_x])
-                primaries_jshower_dir_y = np.array([padding_value if element is None else element for element in primaries_jshower.dir_y])
-                primaries_jshower_dir_z = np.array([padding_value if element is None else element for element in primaries_jshower.dir_z])
+                primaries_jshower_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.E])
+                primaries_jshower_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_x])
+                primaries_jshower_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_y])
+                primaries_jshower_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.pos_z])
+                primaries_jshower_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_x])
+                primaries_jshower_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_y])
+                primaries_jshower_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jshower.dir_z])
 
                 zen_jshower, az_jshower = xyz_dir_to_zen_az(
                     primaries_jshower_dir_x,
@@ -393,13 +395,13 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
                     
                 #check if if has a jmuon reconstruction
-                primaries_jmuon_E = np.array([padding_value if element is None else element for element in primaries_jmuon.E])
-                primaries_jmuon_pos_x = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_x])
-                primaries_jmuon_pos_y = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_y])
-                primaries_jmuon_pos_z = np.array([padding_value if element is None else element for element in primaries_jmuon.pos_z])
-                primaries_jmuon_dir_x = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_x])
-                primaries_jmuon_dir_y = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_y])
-                primaries_jmuon_dir_z = np.array([padding_value if element is None else element for element in primaries_jmuon.dir_z])
+                primaries_jmuon_E = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.E])
+                primaries_jmuon_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_x])
+                primaries_jmuon_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_y])
+                primaries_jmuon_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_z])
+                primaries_jmuon_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_x])
+                primaries_jmuon_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_y])
+                primaries_jmuon_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_z])
 
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
