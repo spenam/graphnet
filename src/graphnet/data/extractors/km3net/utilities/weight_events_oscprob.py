@@ -1,6 +1,6 @@
-f#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+'''
 import ROOT
 import numpy as np
 import km3flux
@@ -248,3 +248,5 @@ def compute_evt_weight(
     weight = livetime * w2 / ngen * oscilation_w
 
     return weight
+
+'''

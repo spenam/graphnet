@@ -1,5 +1,5 @@
 """Code with some functionalities for the extraction."""
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union, Literal
 
 import numpy as np
 import pandas as pd

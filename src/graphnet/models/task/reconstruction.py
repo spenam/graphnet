@@ -46,6 +46,28 @@ class AzimuthReconstruction(AzimuthReconstructionWithKappa):
         return angle
 
 
+class DirectionReconstructionWithUncertainty(StandardLearnedTask):
+    """Reconstructs direction and associated uncertainty (log(var))."""
+
+    # Requires three features: untransformed points in (x,y,z)-space.
+    default_target_labels = [
+        "direction"
+    ]  # contains dir_x, dir_y, dir_z see https://github.com/graphnet-team/graphnet/blob/95309556cfd46a4046bc4bd7609888aab649e295/src/graphnet/training/labels.py#L29
+    default_prediction_labels = [
+        "dir_x_pred",
+        "dir_y_pred",
+        "dir_z_pred",
+        "dir_x_sigma",
+        "dir_y_sigma",
+        "dir_z_sigma",
+    ]
+    nb_inputs = 6
+
+    def _forward(self, x: Tensor) -> Tensor:
+        # Transform outputs to angle and prepare prediction
+        return x
+
+
 class DirectionReconstructionWithKappa(StandardLearnedTask):
     """Reconstructs direction with kappa from the 3D-vMF distribution."""
 

@@ -610,6 +610,7 @@ class GaussianNegativeLogLikelihood3D(LossFunction):
         Returns:
             loss: Elementwise Gaussian Negative Log Likelihood loss terms. Shape [N,]
         """
+        target = target.reshape(-1, 3)
         # Check(s)
         assert prediction.dim() == 2 and prediction.size()[1] == 6
         assert target.dim() == 2 and target.size()[1] == 3
