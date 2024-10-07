@@ -1,10 +1,9 @@
 """Code with some functionalities for the extraction."""
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union, Literal
 
 import numpy as np
 import pandas as pd
-import km3pipe as kp
-
+import math
 
 
 def create_unique_id_filetype(
@@ -129,6 +128,17 @@ def create_unique_id_filetype(
 
 
     return unique_id
+
+
+def filter_None_NaN(
+    value: Union[float, None, Literal[math.nan]],
+    padding_value: float,
+) -> float:
+    """Removes None or Nan values and transforms it to padding float value."""
+    if value is None or math.isnan(value):
+        return padding_value
+    else:
+        return value
 
 
 def xyz_dir_to_zen_az(
