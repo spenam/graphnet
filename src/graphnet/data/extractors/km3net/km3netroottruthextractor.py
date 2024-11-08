@@ -204,9 +204,9 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 primaries_jmuon_pos_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_x])#primaries_jmuon.pos_x
                 primaries_jmuon_pos_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_y])#primaries_jmuon.pos_y
                 primaries_jmuon_pos_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.pos_z])#primaries_jmuon.pos_z
-                primaries_jmuon_dir_x = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_x])#primaries_jmuon.dir_x
-                primaries_jmuon_dir_y = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_y])#primaries_jmuon.dir_y
-                primaries_jmuon_dir_z = np.array([filter_None_NaN(element, padding_value) for element in primaries_jmuon.dir_z])#primaries_jmuon.dir_z
+                primaries_jmuon_dir_x = np.array([0 for element in primaries_jmuon.dir_x])#primaries_jmuon.dir_x
+                primaries_jmuon_dir_y = np.array([0 for element in primaries_jmuon.dir_y])#primaries_jmuon.dir_y
+                primaries_jmuon_dir_z = np.array([0 for element in primaries_jmuon.dir_z])#primaries_jmuon.dir_z
                 zen_jmuon, az_jmuon = xyz_dir_to_zen_az(
                     primaries_jmuon_dir_x,
                     primaries_jmuon_dir_y,
