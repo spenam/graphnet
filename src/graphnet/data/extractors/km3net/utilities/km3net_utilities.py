@@ -136,13 +136,15 @@ def create_unique_id(
     """Create unique ID as run_id*1e9 + frame_index*1e6 + trigger_counter,
     hopefully this won't create clashes of events having a the same unique ID
     which is veeeery unlikely but could happen"""
-    unique_id = []
-    for i in range(len(run_id)):
-        unique_id.append(
-            run_id[i]*1e9 + 
-            frame_index[i]*1e6 +
-            trigger_counter[i]
-        )
+    #unique_id = []
+    #for i in range(len(run_id)):
+    #    unique_id.append(
+    #        run_id[i]*1e9 + 
+    #        frame_index[i]*1e6 +
+    #        trigger_counter[i]
+    #    )
+    unique_id = run_id * 1e9 + frame_index * 1e6 + trigger_counter
+
 
     return unique_id
 
@@ -179,6 +181,9 @@ def xyz_dir_to_zen_az(
 ) -> Tuple[List[float], List[float]]:
     """Convert direction vector to zenith and azimuth angles."""
     # Compute zenith angle (elevation angle)
+    dir_x[dir_x>1] = 0
+    dir_y[dir_y>1] = 0
+    dir_z[dir_z>1] = 0
     zenith = np.arccos(dir_z)  # zenith angle in radians
 
     # Compute azimuth angle
