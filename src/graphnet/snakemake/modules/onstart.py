@@ -39,7 +39,8 @@ def onstart_wrapper(workflow, config):
             # iRods credentials
             logger.info("Check iRods credentialds ...")
 
-            if config['irods_settings']['container'] is not None and os.path.exists(".irods/.irodsA") == False and config['irods_settings']['path'] is not None :
+            #if config['irods_settings']['container'] is not None and os.path.exists(".irods/.irodsA") == False and config['irods_settings']['path'] is not None :
+            if config['irods_settings']['container'] is not None and os.path.exists(".irods/.irodsA") == False:
                 os.makedirs('.irods', exist_ok=True)
                 logger.info("Create iRods configuration files ...")
                 generate_iRods_profile(".irods/irods_environment.json")
