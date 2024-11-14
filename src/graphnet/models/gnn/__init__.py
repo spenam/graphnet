@@ -8,3 +8,6 @@ from .RNN_tito import RNN_TITO
 from .icemix import DeepIce
 from .transformer import Transformer
 from .OrcaNeT import OrcaNeT
+from .particlenet import ParticleNeT
+from .DANN_ParticleNet import DANN_ParticleNeT
+

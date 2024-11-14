@@ -32,7 +32,7 @@ class ReversalLayerF(Function): # As in https://github.com/fungtion/DANN_py3/blo
         return output, None
 
 
-class ParticleNeT(GNN):
+class DANN_ParticleNeT(GNN):
     """ParticleNeT (dynamical edge convolutional) model.
 
     Inspired by: https://arxiv.org/abs/1902.08570
