@@ -13,6 +13,7 @@ from graphnet.data.dataset import (
 )
 from graphnet.utilities.logging import Logger
 from graphnet.data.dataloader import DataLoader
+from pytorch_lighning.pytorch.utilities.combined_loader import CombinedLoader
 
 
 class GraphNeTDataModule(pl.LightningDataModule, Logger):
@@ -574,3 +575,112 @@ class GraphNeTDataModule(pl.LightningDataModule, Logger):
         tmp_args["path"] = path
         tmp_args["selection"] = selection
         return self._construct_dataset(tmp_args)
+
+class GraphNeTDataModuleCombined(GraphNeTDataModule):
+    
+    def _create_dataset(
+        self, selection: Union[List[int], List[List[int]], List[float]]
+    ) -> Union[Dataset, Tuple[Dataset, Dataset]]:
+        """Instantiate `dataset_reference`.
+
+        Args:
+            selection: The selected event id's.
+
+        Returns:
+            A dataset, either an instance of `EnsembleDataset` or `Dataset`.
+        """
+        if self._use_ensemble_dataset:
+            # Construct multiple datasets and pass to EnsembleDataset
+            # len(selection) == len(dataset_args['path'])
+            datasets = []
+            for dataset_idx in range(len(selection)):
+                datasets.append(
+                    self._create_single_dataset(
+                        selection=selection[dataset_idx],  # type: ignore
+                        path=self._dataset_args["path"][dataset_idx],
+                    )
+                )
+
+            dataset = datasets
+        else:
+            # Construct single dataset
+            dataset = self._create_single_dataset(
+                selection=selection,
+                path=self._dataset_args["path"],  # type:ignore
+            )
+        return dataset
+    
+    def _create_combined_loader(
+        self, datasets: Union[List[Dataset], List[EnsembleDataset]]
+    ) -> CombinedLoader:
+        """Create a CombinedLoader from a list of datasets.
+        
+        Args:
+            datasets (List[Dataset]): A list of datasets to combine.
+            
+        Returns:
+            CombinedLoader: The CombinedLoader configured for the given datasets.
+        
+        """
+
+        if datasets == self._train_dataset:
+            dataloader_args = self._train_dataloader_kwargs
+        elif datasets == self._val_dataset:
+            dataloader_args = self._validation_dataloader_kwargs
+        elif datasets == self._test_dataset:
+            dataloader_args = self._test_dataloader_kwargs
+        else:
+            raise ValueError(
+                "Unknown dataset encountered during dataloader creation."
+            )        
+
+        if dataloader_args is None:
+            raise AttributeError("Dataloader arguments not provided.")
+
+        # Ensure datasets is a list with at least two datasets (MC and RealData)
+        if len(datasets) != 2:
+            raise ValueError("Expected exactly two datasets: 'MC' and 'RealData'.")
+
+        loaders = [
+            DataLoader(ds, **dataloader_args)
+            for ds in datasets
+        ]
+
+        return CombinedLoader({"MC": loaders[0], "RealData": loaders[1]})
+
+    @property
+    def train_dataloader(self) -> DataLoader:  # type: ignore[override]
+        """Prepare and return the training DataLoader.
+
+        Returns:
+            DataLoader: The DataLoader configured for training.
+        """
+        if self._use_ensemble_dataset:
+            return self._create_combined_loader(self._train_dataset)
+        else:
+            return self._create_dataloader(self._train_dataset)
+
+    @property
+    def val_dataloader(self) -> DataLoader:  # type: ignore[override]
+        """Prepare and return the validation DataLoader.
+
+        Returns:
+            DataLoader: The DataLoader configured for validation.
+        """
+        if self._use_ensemble_dataset:
+            return self._create_combined_loader(self._val_dataset)
+        else:
+            return self._create_dataloader(self._val_dataset)
+
+    @property
+    def test_dataloader(self) -> DataLoader:  # type: ignore[override]
+        """Prepare and return the test DataLoader.
+
+        Returns:
+            DataLoader: The DataLoader configured for testing.
+        """
+        if self._use_ensemble_dataset:
+            return self._create_combined_loader(self._test_dataset)
+        else:
+            return self._create_dataloader(self._test_dataset)
+
