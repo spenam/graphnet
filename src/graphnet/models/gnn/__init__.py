@@ -9,5 +9,4 @@ from .icemix import DeepIce
 from .transformer import Transformer
 from .OrcaNeT import OrcaNeT
 from .particlenet import ParticleNeT
-from .DANN_ParticleNet import DANN_ParticleNeT
 
