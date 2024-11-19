@@ -13,7 +13,7 @@ from graphnet.data.dataset import (
 )
 from graphnet.utilities.logging import Logger
 from graphnet.data.dataloader import DataLoader
-from pytorch_lighning.pytorch.utilities.combined_loader import CombinedLoader
+from pytorch_lightning.utilities.combined_loader import CombinedLoader
 
 
 class GraphNeTDataModule(pl.LightningDataModule, Logger):
