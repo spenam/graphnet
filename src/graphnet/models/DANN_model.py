@@ -105,9 +105,10 @@ class DANN_model(EasySyntax):
 
     def _build_main_task(self) -> None:
         """Build the main task of the network."""
-        nb_poolings = (
-            len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
-        )
+        #nb_poolings = (
+        #    len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
+        #)
+        nb_poolings = 1
         nb_latent_features = self._backbone_output * nb_poolings
 
         main_task_layers = []
@@ -122,9 +123,10 @@ class DANN_model(EasySyntax):
     def _build_domain_classifier(self) -> None:
         """Build the domain classifier network."""
 
-        nb_poolings = (
-            len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
-        )
+        #nb_poolings = (
+        #    len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
+        #)
+        nb_poolings = 1
         nb_latent_features = self._backbone_output * nb_poolings
 
         domain_classifier_layers = []
