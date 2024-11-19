@@ -1,6 +1,6 @@
 """Standard model class(es)."""
 
-from typing import Any, Dict, List, Optional, Union, Type
+from typing import Any, Dict, List, Optional, Union, Type, Tuple
 import torch
 from torch import Tensor
 from torch_geometric.data import Data
