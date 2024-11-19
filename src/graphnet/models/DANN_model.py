@@ -58,6 +58,7 @@ class DANN_model(EasySyntax):
         dummy_value: Optional[float] = 99999998,
         domain_classifier_layer_sizes: Optional[List[int]] = [256],
         main_task_layer_sizes: Optional[List[int]] = [256],
+        max_epochs: Optional[int] = 100,
     ) -> None:
         """Construct `StandardModel`."""
         # Base class constructor
@@ -96,6 +97,8 @@ class DANN_model(EasySyntax):
         self._domain_task = domain_task
         self._domain_classifier_layer_sizes = domain_classifier_layer_sizes
         self._main_task_layer_sizes = main_task_layer_sizes
+        self._max_epochs = max_epochs
+
 
         self._build_main_task()
         self._build_domain_classifier()
@@ -213,12 +216,12 @@ class DANN_model(EasySyntax):
 
     def _get_p(self) -> float:
         current_iterations = self.global_step
-        current_epoch = (self.current_epoch,)
-        len_dataloader = len(self.train_dataloader())
+        current_epoch = self.current_epoch
+        #len_dataloader = len(self.train_dataloader())
         p = (
-            float(current_iterations + current_epoch * len_dataloader)
-            / self.cfg["training"]["epochs"]
-            / len_dataloader
+            float(current_iterations + current_epoch)# * len_dataloader)
+            / self._max_epochs
+            #/ len_dataloader
         )
 
         return p
