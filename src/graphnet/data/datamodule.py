@@ -25,8 +25,8 @@ class GraphNeTDataModule(pl.LightningDataModule, Logger):
             Type[SQLiteDataset], Type[ParquetDataset], Type[Dataset]
         ],
         dataset_args: Dict[str, Any],
-        selection: Optional[Union[List[int], List[List[int]]]] = None,
-        test_selection: Optional[Union[List[int], List[List[int]]]] = None,
+        selection: Optional[Union[List[int], List[List[int]], Dict[str,Any]]] = None,
+        test_selection: Optional[Union[List[int], List[List[int]], Dict[str,Any]]] = None,
         train_dataloader_kwargs: Dict[str, Any] = None,
         validation_dataloader_kwargs: Dict[str, Any] = None,
         test_dataloader_kwargs: Dict[str, Any] = None,
