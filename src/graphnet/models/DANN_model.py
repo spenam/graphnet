@@ -339,15 +339,7 @@ class DANN_model(EasySyntax):
             assert isinstance(task, accepted_tasks)
 
     def _get_p(self) -> float:
-        current_iterations = self.global_step
-        current_epoch = self.current_epoch
-        #len_dataloader = len(self.train_dataloader())
-        p = (
-            float(current_iterations + current_epoch)# * len_dataloader)
-            / self._max_epochs
-            #/ len_dataloader
-        )
-
+        p = self.global_step / self.trainer.estimated_stepping_batches
         return p
 
     def _get_lambda_p(self) -> float:
