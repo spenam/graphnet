@@ -115,8 +115,10 @@ class DANN_model(EasySyntax):
         layer_sizes = [nb_latent_features] + list(self._main_task_layer_sizes)
         for nb_in, nb_out in zip(layer_sizes[:-1], layer_sizes[1:]):
             main_task_layers.append(torch.nn.Linear(nb_in, nb_out))
-            main_task_layers.append(self._activation)
-            main_task_layers.append(torch.nn.Dropout(self._dropout_readout))
+            #main_task_layers.append(self._activation)
+            #main_task_layers.append(torch.nn.Dropout(self._dropout_readout))
+            main_task_layers.append(self.backbone._activation)
+            main_task_layers.append(torch.nn.Dropout(self.backbone._dropout_readout))
 
         self._main_task = torch.nn.Sequential(*main_task_layers)
 
