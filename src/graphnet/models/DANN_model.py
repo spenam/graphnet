@@ -135,8 +135,10 @@ class DANN_model(EasySyntax):
         layer_sizes = [nb_latent_features] + list(self._domain_classifier_layer_sizes)
         for nb_in, nb_out in zip(layer_sizes[:-1], layer_sizes[1:]):
             domain_classifier_layers.append(torch.nn.Linear(nb_in, nb_out))
-            domain_classifier_layers.append(self._activation)
-            domain_classifier_layers.append(torch.nn.Dropout(self._dropout_readout))
+            #domain_classifier_layers.append(self._activation)
+            #domain_classifier_layers.append(torch.nn.Dropout(self._dropout_readout))
+            domain_classifier_layers.append(self.backbone._activation)
+            domain_classifier_layers.append(torch.nn.Dropout(self.backbone._dropout_readout))
 
         self._domain_classifier = torch.nn.Sequential(*domain_classifier_layers)
 
