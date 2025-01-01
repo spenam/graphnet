@@ -577,9 +577,114 @@ class GraphNeTDataModule(pl.LightningDataModule, Logger):
         return self._construct_dataset(tmp_args)
 
 class GraphNeTDataModuleCombined(GraphNeTDataModule):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def setup(self, stage: str) -> None:
+        """Prepare Datasets for DataLoaders.
+
+        Args:
+            stage: lightning stage. Either "fit, validate, test, predict"
+        """
+        # Sanity Checks
+        self._validate_dataset_class()
+        self._validate_dataset_args()
+        self._validate_dataloader_args()
+
+        # Case-handling of selection arguments
+        self._resolve_selections()
+
+        # Creation of Datasets
+        if (
+            self._test_selection is not None
+            or len(self._test_dataloader_kwargs) > 0
+        ):
+            self._test_dataset = self._create_dataset(
+                self._test_selection  # type: ignore
+            )
+        if stage == "fit" or stage == "validate":
+            if self._train_selection_MC is not None:
+                self._train_dataset, self._train_dataset_RealData = self._create_dataset(
+                    self._train_selection_MC, self._train_selection_RealData
+                )
+            if self._val_selection_MC is not None:
+                self._val_dataset, self._val_dataset_RealData = self._create_dataset(self._val_selection_MC, self._val_selection_RealData)
+
+        return
+
+    def _resolve_selections(self) -> None:
+        if self._test_selection is None:
+            self.warning_once(
+                f"{self.__class__.__name__} did not receive an"
+                " argument for `test_selection` and will "
+                "therefore not have a prediction dataloader available."
+            )
+        if self._selection is not None:
+            # Split the selection into train/validation
+            if self._use_ensemble_dataset:
+                # Split every selection
+                self._train_selection = []
+                self._val_selection = []
+                for selection in self._selection:
+                    train_selection, val_selection = self._split_selection(
+                        selection
+                    )
+                    self._train_selection.append(train_selection)
+                    self._val_selection.append(val_selection)
+
+            else:
+                # Split the only selection we got
+                assert isinstance(self._selection, list)
+                (
+                    self._train_selection,
+                    self._val_selection,
+                ) = self._split_selection(  # type: ignore
+                    self._selection
+                )
+
+        else:  # selection is None
+            # If not provided, we infer it by grabbing
+            # all event ids in the dataset.
+            self.info(
+                f"{self.__class__.__name__} did not receive an"
+                " for `selection`. Selection will "
+                "will automatically be created with a split of "
+                f"train: {self._train_val_split[0]} and "
+                f"validation: {self._train_val_split[1]}"
+            )
+            (
+                self._train_selection_MC,
+                self._val_selection_MC,
+                self._train_selection_RealData,
+                self._val_selection_RealData,
+            ) = self._infer_selections()  # type: ignore
+    
+
+    def _infer_selections(self) -> Tuple[List[int], List[int]]:
+        """Automatically infer training and validation selections.
+
+        Returns:
+            Training selection, Validation selection
+        """
+        if self._use_ensemble_dataset:
+            # We must iterate through the dataset paths and infer a train/val
+            # selection for each.
+            (
+                self._train_selection_MC,
+                self._val_selection_MC,
+            ) = self._infer_selections_on_single_dataset(self._dataset_args["path"][0])
+            (
+                self._train_selection_RealData,
+                self._val_selection_RealData,
+            ) = self._infer_selections_on_single_dataset(self._dataset_args["path"][1])
+
+        return (self._train_selection_MC, self._val_selection_MC, self._train_selection_RealData, self._val_selection_RealData)  # type: ignore
+
+
     
     def _create_dataset(
-        self, selection: Union[List[int], List[List[int]], List[float]]
+        self, selection_MC: Union[List[int], List[List[int]], List[float]], selection_RealData: Union[List[int], List[List[int]], List[float]]
     ) -> Union[Dataset, Tuple[Dataset, Dataset]]:
         """Instantiate `dataset_reference`.
 
@@ -592,95 +697,119 @@ class GraphNeTDataModuleCombined(GraphNeTDataModule):
         if self._use_ensemble_dataset:
             # Construct multiple datasets and pass to EnsembleDataset
             # len(selection) == len(dataset_args['path'])
-            datasets = []
-            for dataset_idx in range(len(selection)):
-                datasets.append(
-                    self._create_single_dataset(
-                        selection=selection[dataset_idx],  # type: ignore
-                        path=self._dataset_args["path"][dataset_idx],
-                    )
-                )
+            #datasets = []
+            #for dataset_idx in range(len(selection)):
+            #    datasets.append(
+            #        self._create_single_dataset(
+            #            selection=selection[dataset_idx],  # type: ignore
+            #            path=self._dataset_args["path"][dataset_idx],
+            #        )
+            #    )
 
-            dataset = datasets
+            #dataset = datasets
+
+            #dataset = self._create_combined_loader(self._dataset_args["path"])
+            dataset_MC = self._create_single_dataset(
+                selection=selection_MC,
+                path = self._dataset_args["path"][0],
+            )
+            dataset_RealData = self._create_single_dataset(
+                selection=selection_RealData,
+                path = self._dataset_args["path"][1],
+            )
+            
+            return dataset_MC, dataset_RealData
+
         else:
             # Construct single dataset
             dataset = self._create_single_dataset(
                 selection=selection,
                 path=self._dataset_args["path"],  # type:ignore
             )
-        return dataset
+            return dataset
     
-    def _create_combined_loader(
-        self, datasets: Union[List[Dataset], List[EnsembleDataset]]
-    ) -> CombinedLoader:
-        """Create a CombinedLoader from a list of datasets.
-        
-        Args:
-            datasets (List[Dataset]): A list of datasets to combine.
-            
-        Returns:
-            CombinedLoader: The CombinedLoader configured for the given datasets.
-        
-        """
+    def _create_dataloader(
+        self, dataset: Union[Dataset, EnsembleDataset]
+    ) -> DataLoader:
+        """Create a DataLoader for the given dataset.
 
-        if datasets == self._train_dataset:
-            dataloader_args = self._train_dataloader_kwargs
-        elif datasets == self._val_dataset:
-            dataloader_args = self._validation_dataloader_kwargs
-        elif datasets == self._test_dataset:
-            dataloader_args = self._test_dataloader_kwargs
-        else:
-            raise ValueError(
-                "Unknown dataset encountered during dataloader creation."
-            )        
+        Args:
+            dataset (Union[Dataset, EnsembleDataset]):
+                                        The dataset to create a DataLoader for.
+
+        Returns:
+            DataLoader: The DataLoader configured for the given dataset.
+        """
+        dataloader_args = self._train_dataloader_kwargs
+        #if dataset == self._train_dataset:
+        #    dataloader_args = self._train_dataloader_kwargs
+        #if dataset == self._train_dataset_RealData:
+        #    dataloader_args = self._train_dataloader_kwargs
+        #elif dataset == self._val_dataset:
+        #    dataloader_args = self._validation_dataloader_kwargs
+        #elif dataset == self._val_dataset_RealData:
+        #    dataloader_args = self._validation_dataloader_kwargs
+        #elif dataset == self._test_dataset:
+        #    dataloader_args = self._test_dataloader_kwargs
+        #else:
+        #    raise ValueError(
+        #        "Unknown dataset encountered during dataloader creation."
+        #    )
+
+        if "sampler" in dataloader_args.keys():
+            # If there were no kwargs provided, set it to empty dict
+            if "sampler_kwargs" not in dataloader_args.keys():
+                dataloader_args["sampler_kwargs"] = {}
+            dataloader_args["sampler"] = dataloader_args["sampler"](
+                dataset, **dataloader_args["sampler_kwargs"]
+            )
+            del dataloader_args["sampler_kwargs"]
+
+        if "batch_sampler" in dataloader_args.keys():
+            if "sampler" not in dataloader_args.keys():
+                raise KeyError(
+                    "When specifying a `batch_sampler`,"
+                    "you must also provide `sampler`."
+                )
+            # If there were no kwargs provided, set it to empty dict
+            if "batch_sampler_kwargs" not in dataloader_args.keys():
+                dataloader_args["batch_sampler_kwargs"] = {}
+
+            batch_sampler = dataloader_args["batch_sampler"](
+                dataloader_args["sampler"],
+                **dataloader_args["batch_sampler_kwargs"],
+            )
+            dataloader_args["batch_sampler"] = batch_sampler
+            # Remove extra keys
+            for key in [
+                "batch_sampler_kwargs",
+                "drop_last",
+                "sampler",
+                "shuffle",
+            ]:
+                dataloader_args.pop(key, None)
 
         if dataloader_args is None:
             raise AttributeError("Dataloader arguments not provided.")
 
-        # Ensure datasets is a list with at least two datasets (MC and RealData)
-        if len(datasets) != 2:
-            raise ValueError("Expected exactly two datasets: 'MC' and 'RealData'.")
-
-        loaders = [
-            DataLoader(ds, **dataloader_args)
-            for ds in datasets
-        ]
-
-        return CombinedLoader({"MC": loaders[0], "RealData": loaders[1]})
+        return DataLoader(dataset=dataset, **dataloader_args)
 
     @property
-    def train_dataloader(self) -> DataLoader:  # type: ignore[override]
+    def train_dataloader(self) -> CombinedLoader:  # type: ignore[override]
         """Prepare and return the training DataLoader.
 
         Returns:
             DataLoader: The DataLoader configured for training.
         """
-        if self._use_ensemble_dataset:
-            return self._create_combined_loader(self._train_dataset)
-        else:
-            return self._create_dataloader(self._train_dataset)
+        return CombinedLoader({"MC": self._create_dataloader(self._train_dataset), "RealData": self._create_dataloader(self._train_dataset_RealData)})
 
     @property
-    def val_dataloader(self) -> DataLoader:  # type: ignore[override]
+    def val_dataloader(self) -> CombinedLoader:  # type: ignore[override]
         """Prepare and return the validation DataLoader.
 
         Returns:
             DataLoader: The DataLoader configured for validation.
         """
-        if self._use_ensemble_dataset:
-            return self._create_combined_loader(self._val_dataset)
-        else:
-            return self._create_dataloader(self._val_dataset)
+        return CombinedLoader({"MC": self._create_dataloader(self._val_dataset), "RealData": self._create_dataloader(self._val_dataset_RealData)})
 
-    @property
-    def test_dataloader(self) -> DataLoader:  # type: ignore[override]
-        """Prepare and return the test DataLoader.
-
-        Returns:
-            DataLoader: The DataLoader configured for testing.
-        """
-        if self._use_ensemble_dataset:
-            return self._create_combined_loader(self._test_dataset)
-        else:
-            return self._create_dataloader(self._test_dataset)
 
