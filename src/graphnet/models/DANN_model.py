@@ -223,14 +223,14 @@ class DANN_model(EasySyntax):
         for d in data:
 
             features = self.backbone(d)
+            reverse_features = ReversalLayerF.apply(features, self._get_lambda_p())
 
             # main task predictions
             task_preds = self._main_task(features)
             task_preds_list.append(task_preds)
 
             # Domain predictions
-            domain_preds = self._domain_classifier(features)
-            domain_preds = ReversalLayerF.apply(domain_preds, self._get_lambda_p())
+            domain_preds = self._domain_classifier(reverse_features)
             domain_preds_list.append(domain_preds)
 
         x_task = torch.cat(task_preds_list, dim=0)
