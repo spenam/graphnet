@@ -149,16 +149,59 @@ class DANN_model(EasySyntax):
         data_merged = {}
         target_labels_merged = list(set(self.target_labels))
         for label in target_labels_merged:
-            data_merged[label] = torch.cat([d[label] for d in data], dim=0)
+            #print(data)
+            data_merged[label] = torch.cat([d[label] for d in [data]], dim=0)
+            #data_merged[label] = torch.cat([dict([d])[label] for d in data if (len(d)>1) and (len(d)<5)], dim=0)
+            #data_merged[label] = data[label]
         for task in self._tasks:
             if task._loss_weight is not None:
-                data_merged[task._loss_weight] = torch.cat(
-                    [d[task._loss_weight] for d in data], dim=0
-                )
+                #data_merged[task._loss_weight] = torch.cat(
+                #    [d[task._loss_weight] for d in data], dim=0
+                #)
+                data_merged[task._loss_weight] = data[task._loss_weight]
+
+        #preds = preds[0]
+        #print("This is preds[0]")
+        #print(preds[0])
+        preds = torch.cat(preds,dim=0)
+        #print("This is preds")
+        #print(preds)
+        #print("This is data_merged")
+        #print(data_merged)
+
 
         losses = [
-            task.compute_loss(pred, data_merged)
-            for task, pred in zip(self._tasks, preds)
+            task.compute_loss(preds, data_merged)
+            for task in self._tasks
+        ]
+        if verbose:
+            self.info(f"{losses}")
+        assert all(
+            loss.dim() == 0 for loss in losses
+        ), "Please reduce loss for each task separately"
+        return torch.sum(torch.stack(losses))
+
+    def compute_loss_domain(
+        self, preds: Tensor, data: List[Data], verbose: bool = False
+    ) -> Tensor:
+        """Compute and sum losses across tasks."""
+        data_merged = {}
+        target_labels_merged = ["is_data"] # a hard coded label, should be changed
+        for label in target_labels_merged:
+            data_merged[label] = torch.cat([d[label] for d in [data]], dim=0)
+        for task in [self._domain_task]:
+            if task._loss_weight is not None:
+                #data_merged[task._loss_weight] = torch.cat(
+                #    [d[task._loss_weight] for d in data], dim=0
+                #)
+                data_merged[task._loss_weight] = data[task._loss_weight]
+
+        preds = torch.cat(preds,dim=0)
+
+
+        losses = [
+            task.compute_loss(preds, data_merged)
+            for task in [self._domain_task]
         ]
         if verbose:
             self.info(f"{losses}")
