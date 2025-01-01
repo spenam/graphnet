@@ -246,16 +246,91 @@ class DANN_model(EasySyntax):
         Applies the forward pass and the following loss calculation, shared
         between the training and validation step.
         """
-        x_s, _ = batch["MC"]
-        x_t, _ = batch["RealData"]
-        x = torch.cat([x_s, x_t], dim=0)
-        preds = self(x)
+        mc_batch = batch["MC"]  
+        real_data_batch = batch["RealData"]
 
-        y_s, _ = preds[0].chunk(2, dim=0)
+        # Forward pass through the model
+        preds_task_mc, preds_domain_mc = self(mc_batch)
+        _, preds_domain_real_data = self(real_data_batch)
+        print(" ")
+        print("#######################")
+        print("##### info, will print 20 elements of each type #####")
+        print("preds_task_mc")
+        print(torch.flatten(preds_task_mc[0])[:20])
+        print("preds_domain_mc")
+        print(torch.flatten(preds_domain_mc[0])[:20])
+        print("preds_domain_real_data")
+        print(torch.flatten(preds_domain_real_data[0])[:20])
 
-        loss_task = self.compute_loss(y_s, batch["MC"])
-        loss_domain = self.compute_loss(preds[1], batch)
-        return loss_task + loss_domain
+        # Split predictions for MC and RealData
+
+        
+
+        loss_task = self.compute_loss(preds_task_mc, mc_batch)
+        loss_domain_mc = self.compute_loss_domain(preds_domain_mc, mc_batch)
+        loss_domain_real_data = self.compute_loss_domain(preds_domain_real_data, real_data_batch)
+        return loss_task, loss_domain_mc, loss_domain_real_data
+
+    def training_step(
+        self, train_batch: Union[Data, List[Data]], batch_idx: int
+    ) -> Tensor:
+        """Perform training step."""
+        if isinstance(train_batch, Data):
+            train_batch = [train_batch]
+        loss_task, loss_domain_mc, loss_domain_real_data = self.shared_step(train_batch, batch_idx)
+
+        mc_data = train_batch["MC"]  
+        real_data = train_batch["RealData"]
+
+        mc_data = mc_data.to_data_list()
+        real_data = real_data.to_data_list()
+        
+        combined_data = mc_data + real_data
+        combined_data = [Batch.from_data_list(combined_data)]
+
+        
+        train_batch = combined_data
+        self.log_dict(
+            {"train_loss_task": loss_task, "train_loss_domain_mc": loss_domain_mc, "train_loss_domain_real_data": loss_domain_real_data},
+            batch_size=self._get_batch_size(train_batch),
+            prog_bar=True,
+            on_epoch=True,
+            on_step=True,
+            sync_dist=True,
+        )
+
+        current_lr = self.trainer.optimizers[0].param_groups[0]["lr"]
+        self.log("lr", current_lr, prog_bar=True, on_step=True)
+        return loss_task + loss_domain_mc + loss_domain_real_data
+
+    def validation_step(
+        self, val_batch: Union[Data, List[Data]], batch_idx: int
+    ) -> Tensor:
+        """Perform validation step."""
+        if isinstance(val_batch, Data):
+            val_batch = [val_batch]
+        loss_task, loss_domain_mc, loss_domain_real_data = self.shared_step(val_batch, batch_idx)
+
+        mc_data = val_batch["MC"]  
+        real_data = val_batch["RealData"]
+
+        mc_data = mc_data.to_data_list()
+        real_data = real_data.to_data_list()
+        
+        combined_data = mc_data + real_data
+        combined_data = [Batch.from_data_list(combined_data)]
+        
+        val_batch = combined_data
+
+        self.log_dict(
+            {"val_loss_task": loss_task, "val_loss_domain_mc": loss_domain_mc, "val_loss_domain_real_data": loss_domain_real_data},
+            batch_size=self._get_batch_size(val_batch),
+            prog_bar=True,
+            on_epoch=True,
+            on_step=False,
+            sync_dist=True,
+        )
+        return loss_task + loss_domain_mc + loss_domain_real_data
 
     def validate_tasks(self) -> None:
         """Verify that self._tasks contain compatible elements."""
