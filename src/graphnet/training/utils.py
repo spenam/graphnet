@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union, Callable
 
 import numpy as np
 import pandas as pd
+import torch
 from pytorch_lightning import Trainer
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
@@ -25,7 +26,11 @@ def collate_fn(graphs: List[Data]) -> Batch:
     Should not occur in "production".
     """
     graphs = [g for g in graphs if g.n_pulses > 1]
-    return Batch.from_data_list(graphs)
+    for g in graphs:
+        g.frame_indx = torch.tensor([g.frame_index.item()], dtype=torch.float64)
+
+    batch = Batch.from_data_list(graphs)
+    return batch
 
 
 class collator_sequence_buckleting:
