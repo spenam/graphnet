@@ -253,7 +253,7 @@ class DANN_model(EasySyntax):
         preds_task_mc, preds_domain_mc = self(mc_batch)
         _, preds_domain_real_data = self(real_data_batch)
         print(" ")
-        print("#######################")
+        print("#######################") #This is just for checking dimensions
         print("##### info, will print 20 elements of each type #####")
         print("preds_task_mc")
         print(torch.flatten(preds_task_mc[0])[:20])
