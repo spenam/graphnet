@@ -8,6 +8,7 @@ from .graph_definition import GraphDefinition
 from graphnet.models.detector import Detector
 from graphnet.models.graphs.edges import EdgeDefinition, KNNEdges
 from graphnet.models.graphs.nodes import NodeDefinition, NodesAsPulses, NodesAsHitsTimeSeries
+from graphnet.models.graphs.nodes import NodeDefinition, NodesAsPulses, NodesAsHitsTimeSeries
 
 class KNNGraph(GraphDefinition):
     """A Graph representation where Edges are drawn to nearest neighbours."""
@@ -134,4 +135,3 @@ class HitsSequence(GraphDefinition):
             perturbation_dict=perturbation_dict,
             seed=seed,
         )
-

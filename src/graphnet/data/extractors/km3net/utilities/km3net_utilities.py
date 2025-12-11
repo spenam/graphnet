@@ -145,6 +145,18 @@ def create_unique_id(
     #    )
     unique_id = run_id * 1e9 + frame_index * 1e6 + trigger_counter
 
+    """Create unique ID as run_id, evt_id, frame_index, trigger_counter."""
+    unique_id = []
+    for i in range(len(run_id)):
+        unique_id.append(
+            str(run_id[i])
+            + "0"
+            + str(evt_id[i])
+            + "0"
+            + str(frame_index[i])
+            + "0"
+            + str(trigger_counter[i])
+        )
 
     return unique_id
 
@@ -207,6 +219,9 @@ def classifier_column_creator(
     """Create helpful columns for the classifier."""
     is_muon = np.zeros(len(pdgid), dtype=int)
     is_track = np.zeros(len(pdgid), dtype=int)
+
+    is_muon[pdgid == 13] = 1
+    is_track[pdgid == 13] = 1
     is_noise = np.zeros(len(pdgid), dtype=int)
     is_data = np.zeros(len(pdgid), dtype=int)
     
@@ -232,7 +247,9 @@ def classifier_column_creator(
     is_track[(abs(pdgid) == 14) & (is_cc_flag == 1)] = 1
     is_noise[pdgid == 0] = 1
     is_data[pdgid == 99] = 1
+    is_data[pdgid == 99] = 1
 
+    return is_muon, is_track, is_noise, is_data
     return is_muon, is_track, is_noise, is_data
 
 
@@ -264,3 +281,21 @@ def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
     return filtered_df
 
 
+
+def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
+    """Mask saturated PMTs in each event independently"""
+    condition_rows = df[df['tot'] > tot][['event_no', 'channel_id', 'dom_id']]
+    merged_df = df.merge(condition_rows, on=['event_no', 'channel_id', 'dom_id'], how='left', indicator=True)
+    filtered_df = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+    return filtered_df
+
+
+
+def mask_saturated_pmts(df: pd.DataFrame, tot:int = 254) -> pd.DataFrame:
+    """Mask saturated PMTs in each event independently"""
+    condition_rows = df[df['tot'] > tot][['event_no', 'channel_id', 'dom_id']]
+    merged_df = df.merge(condition_rows, on=['event_no', 'channel_id', 'dom_id'], how='left', indicator=True)
+    filtered_df = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+    return filtered_df

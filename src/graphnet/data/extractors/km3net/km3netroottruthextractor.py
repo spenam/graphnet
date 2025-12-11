@@ -120,6 +120,30 @@ class KM3NeTROOTTruthExtractor(KM3NeTROOTExtractor):
                 )
                 livetime= float(file.header.livetime.numberOfSeconds)
                 daq = float(file.header.DAQ.livetime)
+            # construct some quantities
+            zen_truth, az_truth = xyz_dir_to_zen_az(
+                np.array(primaries.dir_x),
+                np.array(primaries.dir_y),
+                np.array(primaries.dir_z),
+            )
+            part_dir_x, part_dir_y, part_dir_z = (
+                np.array(primaries.dir_x),
+                np.array(primaries.dir_y),
+                np.array(primaries.dir_z),
+            )
+            unique_id = create_unique_id(
+                np.array(file.run_id),
+                np.array(file.frame_index),
+                np.array(file.trigger_counter),
+            )
+            evt_id, run_id, frame_index, trigger_counter = (
+                np.array(file.id),
+                np.array(file.run_id),
+                np.array(file.frame_index),
+                np.array(file.trigger_counter),
+            )
+            livetime= float(file.header.livetime.numberOfSeconds)
+            daq = float(file.header.DAQ.livetime)
 
                 dict_truth = {
                     "pdgid": np.array(primaries.pdgid),
