@@ -105,9 +105,6 @@ class DANN_model(EasySyntax):
 
     def _build_main_task(self) -> None:
         """Build the main task of the network."""
-        #nb_poolings = (
-        #    len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
-        #)
         nb_poolings = 1
         nb_latent_features = self._backbone_output * nb_poolings
 
@@ -115,8 +112,6 @@ class DANN_model(EasySyntax):
         layer_sizes = [nb_latent_features] + list(self._main_task_layer_sizes)
         for nb_in, nb_out in zip(layer_sizes[:-1], layer_sizes[1:]):
             main_task_layers.append(torch.nn.Linear(nb_in, nb_out))
-            #main_task_layers.append(self._activation)
-            #main_task_layers.append(torch.nn.Dropout(self._dropout_readout))
             main_task_layers.append(self.backbone._activation)
             main_task_layers.append(torch.nn.Dropout(self.backbone._dropout_readout))
 
@@ -125,9 +120,6 @@ class DANN_model(EasySyntax):
     def _build_domain_classifier(self) -> None:
         """Build the domain classifier network."""
 
-        #nb_poolings = (
-        #    len(self._global_pooling_schemes) if self._global_pooling_schemes else 1
-        #)
         nb_poolings = 1
         nb_latent_features = self._backbone_output * nb_poolings
 
@@ -135,8 +127,6 @@ class DANN_model(EasySyntax):
         layer_sizes = [nb_latent_features] + list(self._domain_classifier_layer_sizes)
         for nb_in, nb_out in zip(layer_sizes[:-1], layer_sizes[1:]):
             domain_classifier_layers.append(torch.nn.Linear(nb_in, nb_out))
-            #domain_classifier_layers.append(self._activation)
-            #domain_classifier_layers.append(torch.nn.Dropout(self._dropout_readout))
             domain_classifier_layers.append(self.backbone._activation)
             domain_classifier_layers.append(torch.nn.Dropout(self.backbone._dropout_readout))
 
@@ -149,25 +139,12 @@ class DANN_model(EasySyntax):
         data_merged = {}
         target_labels_merged = list(set(self.target_labels))
         for label in target_labels_merged:
-            #print(data)
             data_merged[label] = torch.cat([d[label] for d in [data]], dim=0)
-            #data_merged[label] = torch.cat([dict([d])[label] for d in data if (len(d)>1) and (len(d)<5)], dim=0)
-            #data_merged[label] = data[label]
         for task in self._tasks:
             if task._loss_weight is not None:
-                #data_merged[task._loss_weight] = torch.cat(
-                #    [d[task._loss_weight] for d in data], dim=0
-                #)
                 data_merged[task._loss_weight] = data[task._loss_weight]
 
-        #preds = preds[0]
-        #print("This is preds[0]")
-        #print(preds[0])
         preds = torch.cat(preds,dim=0)
-        #print("This is preds")
-        #print(preds)
-        #print("This is data_merged")
-        #print(data_merged)
 
 
         losses = [
@@ -191,9 +168,6 @@ class DANN_model(EasySyntax):
             data_merged[label] = torch.cat([d[label] for d in [data]], dim=0)
         for task in [self._domain_task]:
             if task._loss_weight is not None:
-                #data_merged[task._loss_weight] = torch.cat(
-                #    [d[task._loss_weight] for d in data], dim=0
-                #)
                 data_merged[task._loss_weight] = data[task._loss_weight]
 
         preds = torch.cat(preds,dim=0)
@@ -253,7 +227,7 @@ class DANN_model(EasySyntax):
         preds_task_mc, preds_domain_mc = self(mc_batch)
         _, preds_domain_real_data = self(real_data_batch)
         print(" ")
-        print("#######################")
+        print("#######################") #This is just for checking dimensions
         print("##### info, will print 20 elements of each type #####")
         print("preds_task_mc")
         print(torch.flatten(preds_task_mc[0])[:20])
